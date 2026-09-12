@@ -2,8 +2,8 @@
 """Grading check for Step 2 — first messages.create() call.
 
 Runs exercises/practice_message.py for real (this step DOES call the live
-Anthropic API, so ANTHROPIC_API_KEY must be set) and checks the reply
-contains "4" (the answer to "What is 2 + 2?").
+Anthropic API through this project's gateway, so ICA_API_KEY must be set)
+and checks the reply contains "4" (the answer to "What is 2 + 2?").
 """
 import os
 import subprocess
@@ -19,9 +19,9 @@ def fail(msg: str) -> None:
 
 
 def main() -> None:
-    if not os.environ.get("ANTHROPIC_API_KEY"):
+    if not os.environ.get("ICA_API_KEY"):
         fail(
-            "ANTHROPIC_API_KEY is not set. Add it as a repo secret: "
+            "ICA_API_KEY is not set. Add it as a repo secret: "
             "Settings -> Secrets and variables -> Actions -> New repository secret."
         )
 
@@ -32,6 +32,13 @@ def main() -> None:
     for required in ("model=", "max_tokens=", "messages="):
         if required not in source:
             fail(f"Your call to messages.create() is missing the '{required}' parameter.")
+
+    if "load_dotenv()" not in source:
+        fail("Your script doesn't call load_dotenv() — this project loads the key from a .env file.")
+    if "ICA_API_KEY" not in source:
+        fail("Your script doesn't reference ICA_API_KEY — that's the key name this project uses.")
+    if "base_url=" not in source:
+        fail("Your script doesn't set base_url= — this project routes requests through a custom gateway.")
 
     result = subprocess.run(
         [sys.executable, str(EXERCISE_PATH)],
