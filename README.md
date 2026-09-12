@@ -10,7 +10,10 @@ slides — just you, your editor, and real API calls.
 
 **What you'll learn in this proof-of-concept (3 steps):**
 
-1. Install the SDK and create an `Anthropic` client (env var vs explicit key).
+1. Install the SDK and create an `Anthropic` client using this project's
+   real setup: `python-dotenv` + `ICA_API_KEY` + a custom `base_url` (IBM
+   gateway) — with the plain `Anthropic()` / `ANTHROPIC_API_KEY` default
+   shown for context.
 2. Make your first `messages.create()` call.
 3. Inspect the full response object (`id`, `model`, `stop_reason`, `usage`).
 
@@ -33,14 +36,29 @@ as a working demonstration.
    **Save**. (Template copies sometimes start with Actions disabled.)
 3. Go to **Settings → Secrets and variables → Actions → New repository
    secret** and add:
-   - Name: `ANTHROPIC_API_KEY`
-   - Value: your key from [console.anthropic.com](https://console.anthropic.com/settings/keys)
+   - Name: `ICA_API_KEY`
+   - Value: your key (this project routes requests through IBM's gateway,
+     not directly to Anthropic — see below)
 
    > 💸 **Cost note:** Steps 2 and 3 make real calls to the Anthropic API —
    > both when you run your script locally, and again in CI when the grading
    > workflow re-runs your script to check it. Each run costs a small
    > fraction of a cent with a short-output model. Budget accordingly if you
    > run the course many times.
+
+   > 🔑 **Local setup:** copy `.env.example` to `.env` and put your real key
+   > in it (`ICA_API_KEY=...`). The exercises load this file with
+   > `python-dotenv`'s `load_dotenv()` instead of relying on a bare shell
+   > env var. `.env` is already listed in `.gitignore`, so it never gets
+   > committed — only the placeholder `.env.example` is tracked.
+
+   > 🌐 **Why `base_url`?** The client in this course is constructed with
+   > `base_url="https://api.servicesessentials.ibm.com"`, which points the
+   > SDK at an IBM gateway/proxy in front of Anthropic's API instead of
+   > `api.anthropic.com` directly. Request/response shapes are identical —
+   > only the network destination changes. This pattern is common when an
+   > organization routes model traffic through an internal gateway for
+   > logging, cost tracking, or access control.
 4. Go to the **Issues** tab. Within about 20–30 seconds of creating your
    repo, **Issue #1: "📘 Step 1 — Install the SDK & create a client"** should
    appear automatically. If it doesn't show up after a minute, go to the
@@ -83,7 +101,8 @@ template repo, wiring up secrets, testing the whole flow yourself first), see
 
 - Python 3.10+ (matches the SDK's minimum supported version)
 - A GitHub account with Actions enabled
-- An Anthropic API key ([console.anthropic.com](https://console.anthropic.com))
+- An `ICA_API_KEY` (this project's gateway key, set locally via `.env` and
+  as the `ICA_API_KEY` repo secret for CI)
 
 ## Source material
 
