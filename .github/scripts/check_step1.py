@@ -23,8 +23,12 @@ def main() -> None:
         fail(f"{EXERCISE_PATH} does not exist. Create it as instructed in the issue.")
 
     source = EXERCISE_PATH.read_text()
-    if "Anthropic()" not in source and "Anthropic(" not in source:
-        fail("Your script doesn't appear to construct an Anthropic client.")
+    if "load_dotenv()" not in source:
+        fail("Your script doesn't call load_dotenv() — this project loads the key from a .env file.")
+    if "ICA_API_KEY" not in source:
+        fail("Your script doesn't reference ICA_API_KEY — that's the key name this project uses.")
+    if "base_url=" not in source:
+        fail("Your script doesn't set base_url= — this project routes requests through a custom gateway.")
 
     result = subprocess.run(
         [sys.executable, str(EXERCISE_PATH)],
