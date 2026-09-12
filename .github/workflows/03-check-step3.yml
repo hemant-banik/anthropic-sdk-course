@@ -1,8 +1,7 @@
 name: "Step 3 - Inspect Response"
 
-# Disabled by default; enabled by Step 2's workflow. This is the last step
-# in the proof-of-concept course, so on success it posts the course-complete
-# issue instead of a "Step 4" issue.
+# Disabled by default; enabled by Step 2's workflow. On success this opens
+# Step 4's issue and enables the Step 4 checker, continuing the course.
 
 on:
   push:
@@ -57,28 +56,30 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           ISSUE: ${{ steps.find_issue.outputs.issue_number }}
         run: |
-          gh issue comment "$ISSUE" --repo "${{ github.repository }}" --body "✅ **Step 3 complete!** You've finished this proof-of-concept course 🎉"
+          gh issue comment "$ISSUE" --repo "${{ github.repository }}" --body "✅ **Step 3 complete!** You inspected the full response object correctly. Opening Step 4 now..."
           gh issue close "$ISSUE" --repo "${{ github.repository }}"
 
-      - name: Open course-complete issue
+      - name: Open Step 4 issue
         if: success()
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          count=$(gh issue list --repo "${{ github.repository }}" --label "course-complete" --state all --json number --jq 'length')
+          count=$(gh issue list --repo "${{ github.repository }}" --label "step-4" --state all --json number --jq 'length')
           if [ "$count" -eq 0 ]; then
             gh issue create \
               --repo "${{ github.repository }}" \
-              --title "🎉 Course complete!" \
-              --label "course-complete,course" \
-              --body-file .github/steps/04-course-complete.md
+              --title "Step 4: Message roles and multi-turn conversations" \
+              --label "step-4,course" \
+              --body-file .github/steps/04-message-roles.md
           fi
 
-      - name: Disable this workflow
+      - name: Disable this workflow, enable Step 4 checker
         if: success()
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow disable "Step 3 - Inspect Response" --repo "${{ github.repository }}" || true
+        run: |
+          gh workflow disable "Step 3 - Inspect Response" --repo "${{ github.repository }}" || true
+          gh workflow enable "Step 4 - Message Roles & Multi-turn" --repo "${{ github.repository }}" || true
 
       - name: Comment failure reason on issue
         if: failure()
