@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Grading check for Step 3 — inspect the full response object.
 
-Runs exercises/practice_inspect.py (live API call) and checks stdout has
-all six expected labeled lines, and that the id/role/stop_reason values
-look right.
+Runs exercises/practice_inspect.py (live API call through this project's
+gateway) and checks stdout has all six expected labeled lines, that the
+id/role/stop_reason values look right, and that the client setup still uses
+this project's real pattern (load_dotenv + ICA_API_KEY + base_url).
 """
 import os
 import re
@@ -22,14 +23,22 @@ def fail(msg: str) -> None:
 
 
 def main() -> None:
-    if not os.environ.get("ANTHROPIC_API_KEY"):
+    if not os.environ.get("ICA_API_KEY"):
         fail(
-            "ANTHROPIC_API_KEY is not set. Add it as a repo secret: "
+            "ICA_API_KEY is not set. Add it as a repo secret: "
             "Settings -> Secrets and variables -> Actions -> New repository secret."
         )
 
     if not EXERCISE_PATH.exists():
         fail(f"{EXERCISE_PATH} does not exist. Create it as instructed in the issue.")
+
+    source = EXERCISE_PATH.read_text()
+    if "load_dotenv()" not in source:
+        fail("Your script doesn't call load_dotenv() — this project loads the key from a .env file.")
+    if "ICA_API_KEY" not in source:
+        fail("Your script doesn't reference ICA_API_KEY — that's the key name this project uses.")
+    if "base_url=" not in source:
+        fail("Your script doesn't set base_url= — this project routes requests through a custom gateway.")
 
     result = subprocess.run(
         [sys.executable, str(EXERCISE_PATH)],
