@@ -42,6 +42,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           body=$(cat .github/steps/00-welcome.md; echo; echo "---"; cat .github/steps/01-install-sdk.md)
+          gh label create "step-1" --color "0E8A16" --force 2>/dev/null || true
+          gh label create "course" --color "5319E7" --force 2>/dev/null || true
           issue_url=$(gh issue create \
             --repo "${{ github.repository }}" \
             --title "Step 1: Install the SDK & create a client" \

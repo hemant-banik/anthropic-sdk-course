@@ -68,6 +68,8 @@ jobs:
         run: |
           count=$(gh issue list --repo "${{ github.repository }}" --label "step-9" --state all --json number --jq 'length')
           if [ "$count" -eq 0 ]; then
+            gh label create "step-9" --color "0E8A16" --force 2>/dev/null || true
+            gh label create "course" --color "5319E7" --force 2>/dev/null || true
             gh issue create \
               --repo "${{ github.repository }}" \
               --title "Step 9: Extended thinking" \
