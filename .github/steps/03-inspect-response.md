@@ -85,8 +85,8 @@ print("text:", message.content[0].text)
    ```
 
 4. The **"Step 3 — Inspect Response"** check runs automatically. On success
-   this issue closes and you'll see the final **"🎉 Course complete"** issue
-   open — you've completed this proof-of-concept course!
+   this issue closes and **Step 4** (message roles & multi-turn conversations)
+   opens automatically.
 
 <details>
 <summary>Having trouble?</summary>
