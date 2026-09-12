@@ -3,9 +3,22 @@
 ### Theory
 
 `messages.create()` doesn't just return text — it returns a `Message` object
-with useful metadata:
+with useful metadata. Same client setup as Steps 1–2 — load `.env`, read
+`ICA_API_KEY`, point at the gateway `base_url`:
 
 ```python
+import os
+from dotenv import load_dotenv
+from anthropic import Anthropic
+
+load_dotenv()
+config = {"ICA_API_KEY": os.environ.get("ICA_API_KEY")}
+
+client = Anthropic(
+    api_key=config["ICA_API_KEY"],
+    base_url="https://api.servicesessentials.ibm.com",
+)
+
 message = client.messages.create(
     model="claude-opus-5",
     max_tokens=100,
@@ -28,9 +41,17 @@ print("text:", message.content[0].text)
 1. Create **`exercises/practice_inspect.py`** with exactly this content:
 
    ```python
+   import os
+   from dotenv import load_dotenv
    from anthropic import Anthropic
 
-   client = Anthropic()
+   load_dotenv()
+   config = {"ICA_API_KEY": os.environ.get("ICA_API_KEY")}
+
+   client = Anthropic(
+       api_key=config["ICA_API_KEY"],
+       base_url="https://api.servicesessentials.ibm.com",
+   )
 
    message = client.messages.create(
        model="claude-opus-5",
@@ -45,7 +66,7 @@ print("text:", message.content[0].text)
    print("text:", message.content[0].text)
    ```
 
-2. Run it locally:
+2. Run it locally (make sure `.env` still has your `ICA_API_KEY`):
 
    ```bash
    python exercises/practice_inspect.py
@@ -76,5 +97,8 @@ print("text:", message.content[0].text)
 - Keep all six `print(...)` lines — the checker looks for each label
   (`id:`, `model:`, `role:`, `stop_reason:`, `usage:`, `text:`) in your
   script's output.
+- Keep `load_dotenv()`, `ICA_API_KEY`, and `base_url=` in your client setup
+  — the checker verifies your script still uses this project's real
+  client pattern, not the plain `Anthropic()` default.
 
 </details>
