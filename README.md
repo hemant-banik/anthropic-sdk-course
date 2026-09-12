@@ -8,20 +8,38 @@ issue with a short lesson, you write a few lines of Python and push, and a
 GitHub Action checks your work and unlocks the next issue. No videos, no
 slides — just you, your editor, and real API calls.
 
-**What you'll learn in this proof-of-concept (3 steps):**
+**What you'll learn — the full 21-step course:**
 
 1. Install the SDK and create an `Anthropic` client using this project's
    real setup: `python-dotenv` + `ICA_API_KEY` + a custom `base_url` (IBM
    gateway) — with the plain `Anthropic()` / `ANTHROPIC_API_KEY` default
    shown for context.
-2. Make your first `messages.create()` call.
+2. Your first `messages.create()` call.
 3. Inspect the full response object (`id`, `model`, `stop_reason`, `usage`).
+4. Message roles & multi-turn conversations.
+5. Content blocks: text + image input (base64).
+6. Streaming responses.
+7. Structured / JSON output.
+8. Tool use.
+9. Extended thinking.
+10. Vision: multiple images in one request.
+11. PDF support.
+12. Prompt caching.
+13. Count tokens before you spend them.
+14. Batch API: create, poll, retrieve results.
+15. Async Client: `AsyncAnthropic`.
+16. Error handling: `APIError`, `RateLimitError`, `APIStatusError`.
+17. Compare models: same call, different model string.
+18. Files API: upload once, reference by ID.
+19. Code execution tool (server-side sandbox).
+20. Web search tool (server-side).
+21. Bedrock and Vertex client variants (final step).
 
-The full course (see [`COURSE-ARCHITECTURE.md`](COURSE-ARCHITECTURE.md)) is
-designed to extend this same pattern across all 21 topics of the Anthropic
-SDK — streaming, tool use, vision, prompt caching, batches, async, error
-handling, and more — but this repo currently wires up the **first 3 steps**
-as a working demonstration.
+This repo wires up **all 21 steps** end to end — every section of the
+Anthropic Python SDK reference material, chained so that completing one step
+automatically opens the next, ending in a real "course complete" issue. See
+[`COURSE-ARCHITECTURE.md`](COURSE-ARCHITECTURE.md) for exactly how each step
+is built.
 
 ---
 
@@ -40,11 +58,11 @@ as a working demonstration.
    - Value: your key (this project routes requests through IBM's gateway,
      not directly to Anthropic — see below)
 
-   > 💸 **Cost note:** Steps 2 and 3 make real calls to the Anthropic API —
-   > both when you run your script locally, and again in CI when the grading
-   > workflow re-runs your script to check it. Each run costs a small
-   > fraction of a cent with a short-output model. Budget accordingly if you
-   > run the course many times.
+   > 💸 **Cost note:** Most steps from Step 2 onward make real calls to the
+   > Anthropic API — both when you run your script locally, and again in CI
+   > when the grading workflow re-runs your script to check it. Each run
+   > costs a small fraction of a cent with a short-output model. Budget
+   > accordingly if you run the course many times.
 
    > 🔑 **Local setup:** copy `.env.example` to `.env` and put your real key
    > in it (`ICA_API_KEY=...`). The exercises load this file with
