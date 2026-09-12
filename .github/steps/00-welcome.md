@@ -22,7 +22,8 @@ Ready? Your first real lesson is coming up next as **Step 1**.
   depends on Actions being enabled in a repo you own.
 - Check **Settings → Actions → General** — Actions must be allowed to run.
 - Check **Settings → Secrets and variables → Actions** — you need an
-  `ANTHROPIC_API_KEY` secret for steps that call the live API.
+  `ICA_API_KEY` secret for steps that call the live API (this course routes
+  requests through a custom gateway, not directly to Anthropic).
 - Still stuck? See `SETUP-GUIDE.md` in the repo root.
 
 </details>
