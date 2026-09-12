@@ -41,17 +41,52 @@ anthropic-sdk-course/
 │   │   ├── 00-start-course.yml        # Fires once, on first push to main; opens Step 1 issue
 │   │   ├── 01-check-step1.yml         # Validates Step 1, opens Step 2 issue
 │   │   ├── 02-check-step2.yml         # Validates Step 2, opens Step 3 issue
-│   │   └── 03-check-step3.yml         # Validates Step 3, posts course-complete
+│   │   ├── 03-check-step3.yml         # Validates Step 3, opens Step 4 issue
+│   │   ├── 04-check-step4.yml         # Validates Step 4, opens Step 5 issue
+│   │   ├── 05-check-step5.yml         # Validates Step 5, opens Step 6 issue
+│   │   ├── 06-check-step6.yml         # Validates Step 6, opens Step 7 issue
+│   │   ├── 07-check-step7.yml         # Validates Step 7, opens Step 8 issue
+│   │   ├── 08-check-step8.yml         # Validates Step 8, opens Step 9 issue
+│   │   ├── 09-check-step9.yml         # Validates Step 9, opens Step 10 issue
+│   │   ├── 10-check-step10.yml        # Validates Step 10, opens Step 11 issue
+│   │   ├── 11-check-step11.yml        # Validates Step 11, opens Step 12 issue
+│   │   ├── 12-check-step12.yml        # Validates Step 12, opens Step 13 issue
+│   │   ├── 13-check-step13.yml        # Validates Step 13, opens Step 14 issue
+│   │   ├── 14-check-step14.yml        # Validates Step 14, opens Step 15 issue
+│   │   ├── 15-check-step15.yml        # Validates Step 15, opens Step 16 issue
+│   │   ├── 16-check-step16.yml        # Validates Step 16, opens Step 17 issue
+│   │   ├── 17-check-step17.yml        # Validates Step 17, opens Step 18 issue
+│   │   ├── 18-check-step18.yml        # Validates Step 18, opens Step 19 issue
+│   │   ├── 19-check-step19.yml        # Validates Step 19, opens Step 20 issue
+│   │   ├── 20-check-step20.yml        # Validates Step 20, opens Step 21 issue
+│   │   └── 21-check-step21.yml        # Validates Step 21, posts course-complete (final, self-disables)
 │   ├── steps/
 │   │   ├── 00-welcome.md              # Posted into Issue #0 (kickoff)
 │   │   ├── 01-install-sdk.md          # Theory + exercise for Step 1 (posted into issue)
 │   │   ├── 02-first-message.md        # Theory + exercise for Step 2
 │   │   ├── 03-inspect-response.md     # Theory + exercise for Step 3
+│   │   ├── 04-message-roles.md        # Theory + exercise for Step 4
+│   │   ├── 05-content-blocks-image.md # Theory + exercise for Step 5
+│   │   ├── 06-streaming.md            # Theory + exercise for Step 6
+│   │   ├── 07-structured-json-output.md # Theory + exercise for Step 7
+│   │   ├── 08-tool-use.md             # Theory + exercise for Step 8
+│   │   ├── 09-extended-thinking.md    # Theory + exercise for Step 9
+│   │   ├── 10-vision-multi-image.md   # Theory + exercise for Step 10
+│   │   ├── 11-pdf-support.md          # Theory + exercise for Step 11
+│   │   ├── 12-prompt-caching.md       # Theory + exercise for Step 12
+│   │   ├── 13-token-counting.md       # Theory + exercise for Step 13
+│   │   ├── 14-batch-api.md            # Theory + exercise for Step 14
+│   │   ├── 15-async-client.md         # Theory + exercise for Step 15
+│   │   ├── 16-error-handling.md       # Theory + exercise for Step 16
+│   │   ├── 17-models-available.md     # Theory + exercise for Step 17
+│   │   ├── 18-files-api.md            # Theory + exercise for Step 18
+│   │   ├── 19-code-execution-tool.md  # Theory + exercise for Step 19
+│   │   ├── 20-web-search-tool.md      # Theory + exercise for Step 20
+│   │   ├── 21-bedrock-vertex-clients.md # Theory + exercise for Step 21 (final)
 │   │   └── 04-course-complete.md      # Final congratulations message
 │   └── scripts/
-│       ├── check_step1.py             # Validates "practice1.py imports anthropic + prints version"
-│       ├── check_step2.py             # Validates "practice_message.py calls messages.create and prints text"
-│       └── check_step3.py             # Validates "practice_inspect.py prints id/model/stop_reason/usage"
+│       ├── check_step1.py .. check_step21.py  # One small Python validator per step
+│       #   (imports/execs the learner's exercise file and checks its output/behavior)
 └── exercises/                         # Learner writes files HERE as they progress
     └── (empty at start — the learner creates practice*.py here)
 ```
@@ -165,23 +200,43 @@ github/skills courses use the same push-based approach for code exercises.
 
 ---
 
-## 6. Scope of this proof-of-concept
+## 6. Scope of this course
 
-This scaffold implements **3 real, working steps** end-to-end (enough to prove
-the entire mechanism works):
+This repo implements **all 21 steps** end-to-end, covering every section of
+the Anthropic Python SDK reference material:
 
-- **Step 1** — Section 1 of the SDK reference: Installation & Setup
-  (`Anthropic()` client construction, env var vs explicit key).
-- **Step 2** — Section 2, Exercise 1: `messages.create()` minimal call.
-- **Step 3** — Section 2, Exercise 2: inspecting the full response object
-  (`id`, `model`, `stop_reason`, `usage`).
+- **Step 1** — Installation & Setup (`Anthropic()` client construction, env
+  var vs explicit key).
+- **Step 2** — `messages.create()` minimal call.
+- **Step 3** — Inspecting the full response object (`id`, `model`,
+  `stop_reason`, `usage`).
+- **Step 4** — Message roles & multi-turn conversations.
+- **Step 5** — Content blocks: text + image input (base64).
+- **Step 6** — Streaming responses.
+- **Step 7** — Structured / JSON output.
+- **Step 8** — Tool use.
+- **Step 9** — Extended thinking.
+- **Step 10** — Vision: multiple images in one request.
+- **Step 11** — PDF support.
+- **Step 12** — Prompt caching.
+- **Step 13** — Counting tokens before you spend them.
+- **Step 14** — Batch API: create, poll, retrieve results.
+- **Step 15** — Async Client: `AsyncAnthropic`.
+- **Step 16** — Error handling: `APIError`, `RateLimitError`,
+  `APIStatusError`.
+- **Step 17** — Comparing models: same call, different model string.
+- **Step 18** — Files API: upload once, reference by ID.
+- **Step 19** — Code execution tool (server-side sandbox).
+- **Step 20** — Web search tool (server-side).
+- **Step 21** — Bedrock and Vertex client variants (final step, posts
+  course-complete).
 
-The remaining 18 sections × 5 exercises of the source material follow the
-**exact same pattern** — copy a `.github/steps/NN-*.md` file (theory +
-exercise, adapted from the reference doc), copy a `.github/workflows/step-N-*.yml`
-file, write a `check_stepN.py` validator, and wire the "opens next issue" glue.
-`SETUP-GUIDE.md` and this file explain the recipe so the course author can
-mechanically extend it to all 21 sections without inventing anything new.
+Every step follows the **exact same pattern**: a `.github/steps/NN-*.md` file
+(theory + exercise, adapted from the reference doc), a
+`.github/workflows/NN-check-stepN.yml` file, a `check_stepN.py` validator, and
+the "opens next issue" glue that enables the next workflow and disables the
+current one. `SETUP-GUIDE.md` and this file explain the recipe if you want to
+remix this course or extend it further.
 
 ---
 
