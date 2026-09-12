@@ -45,24 +45,36 @@ New repos usually have Actions enabled by default, but double check:
 
 ---
 
-## 3. Add your Anthropic API key as a secret
+## 3. Add your API key as a secret
 
-Steps 2 and 3 make **real calls to the Anthropic API**, both when you (the
-learner) run the script locally AND when the GitHub Action re-runs it to
-grade you. That means the API key needs to exist in two places:
+Steps 2 and 3 make **real calls to the Anthropic API through this project's
+IBM gateway** (`base_url="https://api.servicesessentials.ibm.com"`), both
+when you (the learner) run the script locally AND when the GitHub Action
+re-runs it to grade you. The client is constructed with `python-dotenv` +
+`ICA_API_KEY` + that custom `base_url` — not the plain `Anthropic()` default.
+That means the key needs to exist in two places:
 
-1. **Your local shell**, for testing: `export ANTHROPIC_API_KEY=sk-ant-...`
+1. **Your local `.env` file**, for testing: copy `.env.example` to `.env`
+   and set `ICA_API_KEY=<your real key>`. The exercises call
+   `load_dotenv()` to read it — `.env` is git-ignored, so it never gets
+   committed.
 2. **The repo's Actions secrets**, for grading:
    - Go to **Settings → Secrets and variables → Actions → New repository
      secret**.
-   - Name: `ANTHROPIC_API_KEY`
-   - Value: your real key (get one at https://console.anthropic.com/).
+   - Name: `ICA_API_KEY`
+   - Value: your real key.
    - Click **Add secret**.
+
+> 🌐 **Why `base_url`?** Passing `base_url=` points the SDK at a proxy/
+> gateway in front of Anthropic's API instead of hitting `api.anthropic.com`
+> directly. The SDK's request/response shapes stay identical — only the
+> network destination changes. Useful when an org routes model traffic
+> through an internal gateway for logging, cost tracking, or access control.
 
 > 💰 **Cost note:** Steps 2 and 3 each make one small `messages.create()`
 > call with `max_tokens=100`. This is a trivial cost per learner run
 > (fractions of a cent), but if you expect many learners, keep an eye on
-> your Anthropic usage dashboard.
+> your usage dashboard.
 
 ---
 
