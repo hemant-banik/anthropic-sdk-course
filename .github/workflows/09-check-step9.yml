@@ -72,6 +72,7 @@ jobs:
             gh label create "course" --color "5319E7" --force 2>/dev/null || true
             gh issue create \
               --repo "${{ github.repository }}" \
+              --assignee "${{ github.actor }}" \
               --title "Step 10: Vision — multiple images" \
               --label "step-10,course" \
               --body-file .github/steps/10-vision-multi-image.md

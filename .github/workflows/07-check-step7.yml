@@ -72,6 +72,7 @@ jobs:
             gh label create "course" --color "5319E7" --force 2>/dev/null || true
             gh issue create \
               --repo "${{ github.repository }}" \
+              --assignee "${{ github.actor }}" \
               --title "Step 8: Tool use" \
               --label "step-8,course" \
               --body-file .github/steps/08-tool-use.md

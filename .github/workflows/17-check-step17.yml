@@ -70,6 +70,7 @@ jobs:
             gh label create "course" --color "5319E7" --force 2>/dev/null || true
             gh issue create \
               --repo "${{ github.repository }}" \
+              --assignee "${{ github.actor }}" \
               --title "Step 18: Files API (upload + reference by file_id)" \
               --label "step-18,course" \
               --body-file .github/steps/18-files-api.md

@@ -71,6 +71,7 @@ jobs:
             gh label create "course" --color "5319E7" --force 2>/dev/null || true
             gh issue create \
               --repo "${{ github.repository }}" \
+              --assignee "${{ github.actor }}" \
               --title "🎉 Course complete!" \
               --label "course-complete,course" \
               --body-file .github/steps/04-course-complete.md

@@ -70,6 +70,7 @@ jobs:
             gh label create "course" --color "5319E7" --force 2>/dev/null || true
             gh issue create \
               --repo "${{ github.repository }}" \
+              --assignee "${{ github.actor }}" \
               --title "Step 4: Message roles and multi-turn conversations" \
               --label "step-4,course" \
               --body-file .github/steps/04-message-roles.md

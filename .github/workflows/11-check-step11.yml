@@ -72,6 +72,7 @@ jobs:
             gh label create "course" --color "5319E7" --force 2>/dev/null || true
             gh issue create \
               --repo "${{ github.repository }}" \
+              --assignee "${{ github.actor }}" \
               --title "Step 12: Prompt caching" \
               --label "step-12,course" \
               --body-file .github/steps/12-prompt-caching.md

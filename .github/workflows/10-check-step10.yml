@@ -72,6 +72,7 @@ jobs:
             gh label create "course" --color "5319E7" --force 2>/dev/null || true
             gh issue create \
               --repo "${{ github.repository }}" \
+              --assignee "${{ github.actor }}" \
               --title "Step 11: PDF support" \
               --label "step-11,course" \
               --body-file .github/steps/11-pdf-support.md
