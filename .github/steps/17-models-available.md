@@ -1,5 +1,11 @@
 ## 📘 Step 17 — Compare models: same call, different model string
 
+<!-- pedagogy-header:begin -->
+**Phase 5: Scale & deployment** · Step 17 of 22 · ~15 min · ~$0.003 in API calls
+
+> **Why this matters:** Swapping one model string can cut cost by an order of magnitude — knowing when Haiku is good enough and when you need Sonnet is a direct line on your bill.
+<!-- pedagogy-header:end -->
+
 ### 🎯 What you'll learn
 
 - How Claude model IDs are structured, and why they're just **strings**
@@ -304,5 +310,18 @@ that's fine, as long as the two values differ from each other.)
   pattern.
 - The checker allows up to 90 seconds for the whole script. Two short calls
   finish well inside that, but don't add a dozen models to the loop.
+
+</details>
+
+<details>
+<summary>Stuck? Reveal the solution</summary>
+
+Give it a real attempt first — debugging your own code is where the learning
+happens. If you're properly stuck, the complete working reference is here:
+
+**[`solutions/practice17_models_available.py`](../../solutions/practice17_models_available.py)**
+
+Copy it to `exercises/practice17_models_available.py`, run it, then read it line by line and make
+sure you can explain *why* each part is there.
 
 </details>

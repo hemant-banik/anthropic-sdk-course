@@ -1,5 +1,11 @@
 ## 📘 Step 19 — Code execution tool (server-side sandbox)
 
+<!-- pedagogy-header:begin -->
+**Phase 3: Tools & reasoning** · Step 19 of 22 · ~20 min · ~$0.03 in API calls
+
+> **Why this matters:** LLMs are bad at arithmetic and great at writing Python — handing Claude a sandbox turns 'probably 1,247' into a number that was actually computed.
+<!-- pedagogy-header:end -->
+
 ### 🎯 What you'll learn
 
 - The difference between a **client-side tool** (you run it) and a **server-side tool** (Anthropic runs it)
@@ -298,5 +304,18 @@ automatically.
 - Keep `load_dotenv()`, `ICA_API_KEY`, and `base_url=` in your client
   setup — the checker verifies your script still uses this project's real
   client pattern.
+
+</details>
+
+<details>
+<summary>Stuck? Reveal the solution</summary>
+
+Give it a real attempt first — debugging your own code is where the learning
+happens. If you're properly stuck, the complete working reference is here:
+
+**[`solutions/practice19_code_execution.py`](../../solutions/practice19_code_execution.py)**
+
+Copy it to `exercises/practice19_code_execution.py`, run it, then read it line by line and make
+sure you can explain *why* each part is there.
 
 </details>

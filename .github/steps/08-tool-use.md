@@ -1,5 +1,11 @@
 ## 📘 Step 8 — Tool use
 
+<!-- pedagogy-header:begin -->
+**Phase 3: Tools & reasoning** · Step 8 of 22 · ~25 min · ~$0.01 in API calls
+
+> **Why this matters:** Tool use is how Claude checks your live inventory, queries your database, or books the flight — it is the difference between an assistant that talks and an agent that acts.
+<!-- pedagogy-header:end -->
+
 ### 🎯 What you'll learn
 
 - What a **tool** is, in Claude terms: a Python function *you* own that Claude can ask you to run
@@ -379,5 +385,18 @@ automatically.
   `final answer:` in your output. Don't rename any printed label.
 - If the check fails complaining about `ICA_API_KEY`, make sure it's set as
   a repo secret (Settings → Secrets and variables → Actions).
+
+</details>
+
+<details>
+<summary>Stuck? Reveal the solution</summary>
+
+Give it a real attempt first — debugging your own code is where the learning
+happens. If you're properly stuck, the complete working reference is here:
+
+**[`solutions/practice8_tools.py`](../../solutions/practice8_tools.py)**
+
+Copy it to `exercises/practice8_tools.py`, run it, then read it line by line and make
+sure you can explain *why* each part is there.
 
 </details>

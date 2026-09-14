@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Grading check for Step 21 — Bedrock/Vertex client variants (FINAL STEP).
+"""Grading check for Step 21 — Bedrock/Vertex client variants.
+
+Last step that teaches new API surface; Step 22 is the capstone.
 
 Unlike every other checker in this course, this one does NOT run the
 learner's script as a subprocess and does NOT require ICA_API_KEY — the
@@ -12,14 +14,24 @@ import re
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _report import fail, require_exercise  # noqa: E402
+
 EXERCISE_PATH = Path("exercises/practice21_bedrock_vertex.py")
 
 REQUIRED_CLASSES = ["AnthropicBedrock", "AnthropicVertex"]
 
-
-def fail(msg: str) -> None:
-    print(f"❌ FAIL: {msg}")
-    sys.exit(1)
+CLASS_HINTS = {
+    "AnthropicBedrock": (
+        "Add the AWS variant: 'from anthropic import AnthropicBedrock' and show "
+        "constructing it (aws_region=...). Spelling is exact and case-sensitive."
+    ),
+    "AnthropicVertex": (
+        "Add the GCP variant: 'from anthropic import AnthropicVertex' and show "
+        "constructing it (project_id=..., region=...). Spelling is exact and "
+        "case-sensitive."
+    ),
+}
 
 
 def has_nearby_explanatory_comment(source: str, class_name: str) -> bool:
@@ -41,25 +53,48 @@ def has_nearby_explanatory_comment(source: str, class_name: str) -> bool:
 def main() -> None:
     # NOTE: intentionally no ICA_API_KEY check here — this step makes no
     # live API call, unlike every other step in the course.
-
-    if not EXERCISE_PATH.exists():
-        fail(f"{EXERCISE_PATH} does not exist. Create it as instructed in the issue.")
-
-    source = EXERCISE_PATH.read_text()
+    source = require_exercise(EXERCISE_PATH)
 
     for class_name in REQUIRED_CLASSES:
         if class_name not in source:
-            fail(f"Your script doesn't reference {class_name} — both client classes are required.")
+            fail(
+                f"Your script doesn't reference {class_name} — both client classes are required.",
+                expected=f"{EXERCISE_PATH} source to contain '{class_name}'",
+                actual_title="YOUR SCRIPT (source as the grader sees it)",
+                actual=source,
+                hint=CLASS_HINTS[class_name],
+            )
 
     if "import" not in source or not re.search(r"from\s+anthropic\s+import", source):
-        fail("Your script doesn't import from the anthropic package (expected 'from anthropic import ...').")
+        fail(
+            "Your script doesn't import from the anthropic package (expected 'from anthropic import ...').",
+            expected="source to match the regex  from\\s+anthropic\\s+import",
+            actual_title="YOUR SCRIPT (source as the grader sees it)",
+            actual=source,
+            hint=(
+                "Use the 'from anthropic import AnthropicBedrock, AnthropicVertex' form. "
+                "A plain 'import anthropic' does not match what this step asks for."
+            ),
+        )
 
     for class_name in REQUIRED_CLASSES:
         if not has_nearby_explanatory_comment(source, class_name):
             fail(
                 f"Couldn't find an explanatory '# ... use ... when/if/want ...' comment "
                 f"near your {class_name} usage. Add a comment explaining when you'd "
-                f"reach for {class_name} specifically."
+                f"reach for {class_name} specifically.",
+                expected=(
+                    f"a '#' comment within the 6 lines above your {class_name} usage "
+                    f"containing the word 'use' AND one of 'when' / 'if' / 'want'"
+                ),
+                actual_title="YOUR SCRIPT (source as the grader sees it)",
+                actual=source,
+                hint=(
+                    f"Put a comment directly above the {class_name} line that says when "
+                    f"to pick it, e.g. '# Use {class_name} when your workload already "
+                    f"runs on that cloud.' — it must contain 'use' plus "
+                    f"'when'/'if'/'want'."
+                ),
             )
 
     print("✅ PASS: script demonstrates both client variants with clear usage comments.")

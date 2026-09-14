@@ -1,5 +1,11 @@
 ## 📘 Step 6 — Streaming responses
 
+<!-- pedagogy-header:begin -->
+**Phase 2: Input & output types** · Step 6 of 22 · ~15 min · ~$0.005 in API calls
+
+> **Why this matters:** Streaming is why ChatGPT-style products feel fast: the same 8-second answer feels instant when the first word lands in 300 ms instead of a spinner.
+<!-- pedagogy-header:end -->
+
 ### 🎯 What you'll learn
 
 - The difference between `.create()` (wait for everything) and `.stream()`
@@ -349,5 +355,18 @@ grader looks for a *line* starting with `stop_reason:`.
   your script — make sure all three are present.
 - If the check fails complaining about `ICA_API_KEY`, make sure it's set as
   a repo secret (Settings → Secrets and variables → Actions).
+
+</details>
+
+<details>
+<summary>Stuck? Reveal the solution</summary>
+
+Give it a real attempt first — debugging your own code is where the learning
+happens. If you're properly stuck, the complete working reference is here:
+
+**[`solutions/practice6_streaming.py`](../../solutions/practice6_streaming.py)**
+
+Copy it to `exercises/practice6_streaming.py`, run it, then read it line by line and make
+sure you can explain *why* each part is there.
 
 </details>

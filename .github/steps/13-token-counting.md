@@ -1,5 +1,11 @@
 ## 📘 Step 13 — Count tokens before you spend them
 
+<!-- pedagogy-header:begin -->
+**Phase 4: Production concerns** · Step 13 of 22 · ~15 min · $0 in API calls
+
+> **Why this matters:** `count_tokens()` is a free dry run — it lets you reject an oversized request or show a cost estimate *before* you spend anything, which is how you avoid a surprise invoice.
+<!-- pedagogy-header:end -->
+
 ### 🎯 What you'll learn
 
 - What a **token** actually is, and why it isn't a word or a character
@@ -350,5 +356,18 @@ counting happens.
 - Keep `load_dotenv()`, `ICA_API_KEY`, and `base_url=` in your client setup
   — the checker verifies your script still uses this project's real client
   pattern, not the plain `Anthropic()` default.
+
+</details>
+
+<details>
+<summary>Stuck? Reveal the solution</summary>
+
+Give it a real attempt first — debugging your own code is where the learning
+happens. If you're properly stuck, the complete working reference is here:
+
+**[`solutions/practice13_token_counting.py`](../../solutions/practice13_token_counting.py)**
+
+Copy it to `exercises/practice13_token_counting.py`, run it, then read it line by line and make
+sure you can explain *why* each part is there.
 
 </details>

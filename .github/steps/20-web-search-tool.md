@@ -1,5 +1,11 @@
 ## 📘 Step 20 — Web search tool (server-side)
 
+<!-- pedagogy-header:begin -->
+**Phase 3: Tools & reasoning** · Step 20 of 22 · ~20 min · ~$0.04 in API calls
+
+> **Why this matters:** Claude's training data has a cutoff; web search with citations is how you answer 'what happened this week' and give the user a link to verify it.
+<!-- pedagogy-header:end -->
+
 ### 🎯 What you'll learn
 
 - Why a model with a training cutoff needs live web access
@@ -306,5 +312,18 @@ will open automatically.
 - Keep `load_dotenv()`, `ICA_API_KEY`, and `base_url=` in your client
   setup — the checker verifies your script still uses this project's real
   client pattern.
+
+</details>
+
+<details>
+<summary>Stuck? Reveal the solution</summary>
+
+Give it a real attempt first — debugging your own code is where the learning
+happens. If you're properly stuck, the complete working reference is here:
+
+**[`solutions/practice20_web_search.py`](../../solutions/practice20_web_search.py)**
+
+Copy it to `exercises/practice20_web_search.py`, run it, then read it line by line and make
+sure you can explain *why* each part is there.
 
 </details>

@@ -5,64 +5,84 @@ Runs exercises/practice18_files_api.py (live API call through this
 project's gateway) and checks stdout has both expected labeled lines: a
 real file_id and a non-empty summary referencing the uploaded content.
 """
-import os
-import subprocess
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _report import (
+    CLIENT_SETUP_CHECKS,
+    check_source,
+    contains,
+    fail,
+    require_api_key,
+    require_exercise,
+    require_labels,
+    run_exercise,
+)
 
 EXERCISE_PATH = Path("exercises/practice18_files_api.py")
 
 REQUIRED_LABELS = ["file_id:", "summary:"]
 
+LABEL_HINTS = {
+    "file_id:": (
+        "Print the id returned by the upload, e.g. "
+        'print("file_id:", uploaded.id) — it starts with \'file_\'.'
+    ),
+    "summary:": (
+        'Print Claude\'s reply about the uploaded file: '
+        'print("summary:", response.content[0].text).'
+    ),
+}
 
-def fail(msg: str) -> None:
-    print(f"❌ FAIL: {msg}")
-    sys.exit(1)
+SOURCE_CHECKS = CLIENT_SETUP_CHECKS + [
+    (
+        "files.upload",
+        "Your script doesn't call client.files.upload() — that's the whole point of this step!",
+        "Upload the file first with client.files.upload(file=(name, handle, mime)) and "
+        "keep the returned object — you need its .id for the document block.",
+    ),
+    (
+        "file_id",
+        "Your script doesn't reference file_id in a document content block.",
+        'Reference the upload instead of inlining base64: {"type": "document", '
+        '"source": {"type": "file", "file_id": uploaded.id}}.',
+    ),
+]
 
 
 def main() -> None:
-    if not os.environ.get("ICA_API_KEY"):
-        fail(
-            "ICA_API_KEY is not set. Add it as a repo secret: "
-            "Settings -> Secrets and variables -> Actions -> New repository secret."
-        )
+    require_api_key()
+    source = require_exercise(EXERCISE_PATH)
+    check_source(source, SOURCE_CHECKS)
 
-    if not EXERCISE_PATH.exists():
-        fail(f"{EXERCISE_PATH} does not exist. Create it as instructed in the issue.")
-
-    source = EXERCISE_PATH.read_text()
-    if "load_dotenv()" not in source:
-        fail("Your script doesn't call load_dotenv() — this project loads the key from a .env file.")
-    if "ICA_API_KEY" not in source:
-        fail("Your script doesn't reference ICA_API_KEY — that's the key name this project uses.")
-    if "base_url=" not in source:
-        fail("Your script doesn't set base_url= — this project routes requests through a custom gateway.")
-    if "files.upload" not in source:
-        fail("Your script doesn't call client.files.upload() — that's the whole point of this step!")
-    if "file_id" not in source:
-        fail("Your script doesn't reference file_id in a document content block.")
-
-    result = subprocess.run(
-        [sys.executable, str(EXERCISE_PATH)],
-        capture_output=True,
-        text=True,
+    stdout = run_exercise(
+        EXERCISE_PATH,
         timeout=60,
-    )
-    if result.returncode != 0:
-        fail(
+        error_msg=(
             "Your script raised an error when run (see the step's troubleshooting "
-            "note if this is a gateway Files API limitation):\n"
-            f"--- stdout ---\n{result.stdout}\n"
-            f"--- stderr ---\n{result.stderr}"
+            "note if this is a gateway Files API limitation):"
+        ),
+        error_hint=(
+            "Check the last line of the stderr traceback. A 404 on /v1/files usually "
+            "means this gateway doesn't expose the Files API — see the step's "
+            "troubleshooting note. Files API also needs the anthropic-beta header."
+        ),
+    )
+
+    require_labels(stdout, REQUIRED_LABELS, LABEL_HINTS)
+
+    # contains() already tolerates the missing/extra space after the colon.
+    if not contains(stdout, "file_id: file_"):
+        fail(
+            "Expected file_id to start with 'file_'. Got stdout:",
+            expected="stdout to contain 'file_id: file_' (the real uploaded file id)",
+            actual=stdout,
+            hint=(
+                "Print the .id of the upload result, not the local filename or the whole "
+                "object. Real Files API ids always begin with the 'file_' prefix."
+            ),
         )
-
-    stdout = result.stdout
-    for label in REQUIRED_LABELS:
-        if label not in stdout:
-            fail(f"Expected a line starting with '{label}' in stdout. Got:\n{stdout}")
-
-    if "file_id: file_" not in stdout and "file_id:file_" not in stdout:
-        fail(f"Expected file_id to start with 'file_'. Got stdout:\n{stdout}")
 
     print("✅ PASS: file uploaded and referenced by file_id successfully.")
     print(stdout)

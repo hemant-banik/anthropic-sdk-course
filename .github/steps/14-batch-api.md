@@ -1,5 +1,11 @@
 ## 📘 Step 14 — Batch API: create, poll, retrieve results
 
+<!-- pedagogy-header:begin -->
+**Phase 4: Production concerns** · Step 14 of 22 · ~20 min · ~$0.001 in API calls
+
+> **Why this matters:** When you need to classify 50,000 support tickets overnight, the Batch API halves the bill for work that does not need an answer this second.
+<!-- pedagogy-header:end -->
+
 ### 🎯 What you'll learn
 
 - The difference between a **synchronous** call and an **asynchronous job**
@@ -487,5 +493,18 @@ job.
   exactly `0`. Don't rename any printed label.
 - CI runners can be slow — the checker gives the script several minutes to
   finish polling before timing out.
+
+</details>
+
+<details>
+<summary>Stuck? Reveal the solution</summary>
+
+Give it a real attempt first — debugging your own code is where the learning
+happens. If you're properly stuck, the complete working reference is here:
+
+**[`solutions/practice14_batch_api.py`](../../solutions/practice14_batch_api.py)**
+
+Copy it to `exercises/practice14_batch_api.py`, run it, then read it line by line and make
+sure you can explain *why* each part is there.
 
 </details>

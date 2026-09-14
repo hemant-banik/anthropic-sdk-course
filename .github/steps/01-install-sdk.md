@@ -1,5 +1,11 @@
 ## 📘 Step 1 — Install the SDK & create a client
 
+<!-- pedagogy-header:begin -->
+**Phase 1: Foundations** · Step 1 of 22 · ~15 min · $0 in API calls
+
+> **Why this matters:** Every Claude script you ever write starts with these four lines; getting the key out of your source code and into `.env` on day one is what keeps it off GitHub forever.
+<!-- pedagogy-header:end -->
+
 ### 🎯 What you'll learn
 
 - What an **SDK** is, and what a **client** object actually represents
@@ -332,5 +338,18 @@ sometimes called *dunder* attributes.
 - If the check fails complaining about `ICA_API_KEY`, make sure you added it
   as a repo secret (Settings → Secrets and variables → Actions) — the CI
   checker needs it too, not just your local `.env`.
+
+</details>
+
+<details>
+<summary>Stuck? Reveal the solution</summary>
+
+Give it a real attempt first — debugging your own code is where the learning
+happens. If you're properly stuck, the complete working reference is here:
+
+**[`solutions/practice1.py`](../../solutions/practice1.py)**
+
+Copy it to `exercises/practice1.py`, run it, then read it line by line and make
+sure you can explain *why* each part is there.
 
 </details>

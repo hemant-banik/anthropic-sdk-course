@@ -5,69 +5,77 @@ Runs exercises/practice17_models_available.py (live API calls through this
 project's gateway to at least 2 different model strings) and checks stdout
 labels the model name and stop_reason for each call.
 """
-import os
-import re
-import subprocess
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _report import (
+    CLIENT_SETUP_CHECKS,
+    check_source,
+    fail,
+    find_values,
+    require_api_key,
+    require_exercise,
+    run_exercise,
+)
 
 EXERCISE_PATH = Path("exercises/practice17_models_available.py")
 
 
-def fail(msg: str) -> None:
-    print(f"❌ FAIL: {msg}")
-    sys.exit(1)
-
-
 def main() -> None:
-    if not os.environ.get("ICA_API_KEY"):
-        fail(
-            "ICA_API_KEY is not set. Add it as a repo secret: "
-            "Settings -> Secrets and variables -> Actions -> New repository secret."
-        )
+    require_api_key()
+    source = require_exercise(EXERCISE_PATH)
+    check_source(source, CLIENT_SETUP_CHECKS)
 
-    if not EXERCISE_PATH.exists():
-        fail(f"{EXERCISE_PATH} does not exist. Create it as instructed in the issue.")
-
-    source = EXERCISE_PATH.read_text()
-    if "load_dotenv()" not in source:
-        fail("Your script doesn't call load_dotenv() — this project loads the key from a .env file.")
-    if "ICA_API_KEY" not in source:
-        fail("Your script doesn't reference ICA_API_KEY — that's the key name this project uses.")
-    if "base_url=" not in source:
-        fail("Your script doesn't set base_url= — this project routes requests through a custom gateway.")
-
-    result = subprocess.run(
-        [sys.executable, str(EXERCISE_PATH)],
-        capture_output=True,
-        text=True,
+    stdout = run_exercise(
+        EXERCISE_PATH,
         timeout=90,
+        error_hint=(
+            "Check the last line of the stderr traceback. A 404 on one model means that "
+            "model string isn't available through this gateway — try another from the "
+            "step's list."
+        ),
     )
-    if result.returncode != 0:
-        fail(
-            "Your script raised an error when run:\n"
-            f"--- stdout ---\n{result.stdout}\n"
-            f"--- stderr ---\n{result.stderr}"
-        )
 
-    stdout = result.stdout
-    model_matches = re.findall(r"model:\s*(\S+)", stdout)
-    stop_reason_matches = re.findall(r"stop_reason:\s*(\S+)", stdout)
+    model_matches = find_values(stdout, "model:")
+    stop_reason_matches = find_values(stdout, "stop_reason:")
 
     if len(model_matches) < 2:
         fail(
             "Expected at least 2 lines starting with 'model:' (one per model "
-            f"tested). Got {len(model_matches)} in stdout:\n{stdout}"
+            f"tested). Got {len(model_matches)} in stdout:",
+            expected="at least 2 lines matching  model:\\s*(\\S+)  — one per model tested",
+            actual=stdout,
+            hint=(
+                "Loop over a list of 2-3 model strings and print "
+                'print("model:", response.model) on every iteration — printing it once '
+                "after the loop only yields one line."
+            ),
         )
     if len(stop_reason_matches) < 2:
         fail(
             "Expected at least 2 lines starting with 'stop_reason:' (one per "
-            f"model tested). Got {len(stop_reason_matches)} in stdout:\n{stdout}"
+            f"model tested). Got {len(stop_reason_matches)} in stdout:",
+            expected=(
+                "at least 2 lines matching  stop_reason:\\s*(\\S+)  — one per model tested"
+            ),
+            actual=stdout,
+            hint=(
+                'Print print("stop_reason:", response.stop_reason) inside the same loop, '
+                "right next to the model line, so each model contributes both lines."
+            ),
         )
     if len(set(model_matches)) < 2:
         fail(
             f"Expected at least 2 DIFFERENT model names printed, got: {model_matches}. "
-            "Use 2-3 different model= strings."
+            "Use 2-3 different model= strings.",
+            expected="at least 2 DISTINCT values printed after 'model:'",
+            actual=stdout,
+            hint=(
+                "The same model name was printed every time — make sure the loop passes "
+                "the current model into create(model=...) instead of a hard-coded "
+                "constant."
+            ),
         )
 
     print("✅ PASS: compared model + stop_reason across multiple models.")

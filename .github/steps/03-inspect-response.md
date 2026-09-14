@@ -1,5 +1,11 @@
 ## 📘 Step 3 — Inspect the full response object
 
+<!-- pedagogy-header:begin -->
+**Phase 1: Foundations** · Step 3 of 22 · ~15 min · ~$0.002 in API calls
+
+> **Why this matters:** `.usage` is your invoice and `.stop_reason` is your bug report — teams that never read them ship apps that silently truncate answers and blow their budget.
+<!-- pedagogy-header:end -->
+
 ### 🎯 What you'll learn
 
 - That `messages.create()` returns a rich **object**, not just a string
@@ -276,5 +282,18 @@ the loop. All six are required.
 - Keep `load_dotenv()`, `ICA_API_KEY`, and `base_url=` in your client setup
   — the checker verifies your script still uses this project's real
   client pattern, not the plain `Anthropic()` default.
+
+</details>
+
+<details>
+<summary>Stuck? Reveal the solution</summary>
+
+Give it a real attempt first — debugging your own code is where the learning
+happens. If you're properly stuck, the complete working reference is here:
+
+**[`solutions/practice_inspect.py`](../../solutions/practice_inspect.py)**
+
+Copy it to `exercises/practice_inspect.py`, run it, then read it line by line and make
+sure you can explain *why* each part is there.
 
 </details>

@@ -1,9 +1,16 @@
-## 📘 Step 21 — Bedrock and Vertex client variants (FINAL STEP)
+## 📘 Step 21 — Bedrock and Vertex client variants
 
-Welcome to the final step of the course! This one is different from the
-rest: you're not required to have AWS or GCP credentials. It's a
-**conceptual/comparison** exercise about the SDK's cloud-partner client
-variants.
+<!-- pedagogy-header:begin -->
+**Phase 5: Scale & deployment** · Step 21 of 22 · ~15 min · $0 in API calls
+
+> **Why this matters:** Most enterprises will not hand you a new vendor invoice, but they will let you run Claude inside the AWS or GCP account they already audit — same call shape, different constructor.
+<!-- pedagogy-header:end -->
+
+This is the last step that teaches a new piece of API surface — after it
+comes the capstone, where you build something yourself. This one is also
+different from the rest in that you're not required to have AWS or GCP
+credentials. It's a **conceptual/comparison** exercise about the SDK's
+cloud-partner client variants.
 
 ### 🎯 What you'll learn
 
@@ -296,9 +303,9 @@ git push
 ```
 
 ✅ **What should happen:** pushing triggers the "Step 21 - Bedrock and
-Vertex Clients" GitHub Actions workflow. A green checkmark closes this
-issue and opens the final **🎉 Course complete!** issue — congratulations,
-you'll have finished all 21 sections of the SDK reference!
+Vertex Clients" GitHub Actions workflow. A green checkmark closes this issue
+and opens **Step 22 — the capstone**, where you put everything you've learned
+into one small application of your own.
 
 <details>
 <summary>Having trouble?</summary>
@@ -343,5 +350,18 @@ you'll have finished all 21 sections of the SDK reference!
   client object never makes a network call.
 - Note this step needs **no** `ICA_API_KEY`, `load_dotenv()`, or `base_url=` —
   unlike every other checker in the course, `check_step21.py` skips all of that.
+
+</details>
+
+<details>
+<summary>Stuck? Reveal the solution</summary>
+
+Give it a real attempt first — debugging your own code is where the learning
+happens. If you're properly stuck, the complete working reference is here:
+
+**[`solutions/practice21_bedrock_vertex.py`](../../solutions/practice21_bedrock_vertex.py)**
+
+Copy it to `exercises/practice21_bedrock_vertex.py`, run it, then read it line by line and make
+sure you can explain *why* each part is there.
 
 </details>

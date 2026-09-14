@@ -5,61 +5,82 @@ Runs exercises/practice10_vision.py (live API call through this project's
 gateway) and checks stdout shows the "answer:" label with Claude correctly
 distinguishing the red first image from the blue second image.
 """
-import os
-import subprocess
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _report import (
+    CLIENT_SETUP_CHECKS,
+    check_source,
+    contains,
+    fail,
+    require_api_key,
+    require_exercise,
+    require_in_stdout,
+    run_exercise,
+)
+
 EXERCISE_PATH = Path("exercises/practice10_vision.py")
 
-
-def fail(msg: str) -> None:
-    print(f"❌ FAIL: {msg}")
-    sys.exit(1)
+SOURCE_CHECKS = CLIENT_SETUP_CHECKS + [
+    (
+        # Two image blocks in ONE message — a count check, so use a callable.
+        lambda src: src.count('"type": "image"') >= 2,
+        "Your script needs at least two image content blocks in the same message.",
+        'Put both images in one user message\'s content list: [{"type": "image", ...}, '
+        '{"type": "image", ...}, {"type": "text", "text": "..."}]. The grader counts '
+        'occurrences of the exact text \'"type": "image"\', so it must appear twice.',
+    ),
+]
 
 
 def main() -> None:
-    if not os.environ.get("ICA_API_KEY"):
-        fail(
-            "ICA_API_KEY is not set. Add it as a repo secret: "
-            "Settings -> Secrets and variables -> Actions -> New repository secret."
-        )
+    require_api_key()
+    source = require_exercise(EXERCISE_PATH)
+    check_source(source, SOURCE_CHECKS)
 
-    if not EXERCISE_PATH.exists():
-        fail(f"{EXERCISE_PATH} does not exist. Create it as instructed in the issue.")
-
-    source = EXERCISE_PATH.read_text()
-    if "load_dotenv()" not in source:
-        fail("Your script doesn't call load_dotenv() — this project loads the key from a .env file.")
-    if "ICA_API_KEY" not in source:
-        fail("Your script doesn't reference ICA_API_KEY — that's the key name this project uses.")
-    if "base_url=" not in source:
-        fail("Your script doesn't set base_url= — this project routes requests through a custom gateway.")
-    if source.count('"type": "image"') < 2:
-        fail("Your script needs at least two image content blocks in the same message.")
-
-    result = subprocess.run(
-        [sys.executable, str(EXERCISE_PATH)],
-        capture_output=True,
-        text=True,
+    stdout = run_exercise(
+        EXERCISE_PATH,
         timeout=60,
+        error_hint=(
+            "Check the last line of the stderr traceback. FileNotFoundError means an "
+            "image path doesn't resolve from the repo root; a 400 'could not process "
+            "image' means one of the base64 strings is malformed."
+        ),
     )
-    if result.returncode != 0:
+
+    require_in_stdout(
+        stdout,
+        "answer:",
+        "Expected a line starting with 'answer:' in stdout.",
+        expected="stdout to contain the literal text 'answer:'",
+        hint=(
+            'Print the reply with the exact lowercase label, e.g. '
+            'print("answer:", response.content[0].text).'
+        ),
+    )
+
+    if not contains(stdout, "red"):
         fail(
-            "Your script raised an error when run:\n"
-            f"--- stdout ---\n{result.stdout}\n"
-            f"--- stderr ---\n{result.stderr}"
+            "Expected the reply to mention 'red' for the first image. Got stdout:",
+            expected="stdout to contain 'red' (case-insensitive)",
+            actual=stdout,
+            hint=(
+                "The first test image is solid red. If Claude never says 'red', the "
+                "first image block probably didn't carry real base64 data — verify you "
+                "encoded the correct file."
+            ),
         )
-
-    stdout = result.stdout
-    if "answer:" not in stdout:
-        fail(f"Expected a line starting with 'answer:' in stdout. Got:\n{stdout}")
-
-    lower = stdout.lower()
-    if "red" not in lower:
-        fail(f"Expected the reply to mention 'red' for the first image. Got stdout:\n{stdout}")
-    if "blue" not in lower:
-        fail(f"Expected the reply to mention 'blue' for the second image. Got stdout:\n{stdout}")
+    if not contains(stdout, "blue"):
+        fail(
+            "Expected the reply to mention 'blue' for the second image. Got stdout:",
+            expected="stdout to contain 'blue' (case-insensitive)",
+            actual=stdout,
+            hint=(
+                "The second test image is solid blue. Mentioning only red usually means "
+                "you sent the same image twice — check you encoded two different files."
+            ),
+        )
 
     print("✅ PASS: Claude correctly compared two images in one request.")
     print(stdout)

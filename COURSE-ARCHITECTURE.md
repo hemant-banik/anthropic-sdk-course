@@ -59,7 +59,8 @@ anthropic-sdk-course/
 │   │   ├── 18-check-step18.yml        # Validates Step 18, opens Step 19 issue
 │   │   ├── 19-check-step19.yml        # Validates Step 19, opens Step 20 issue
 │   │   ├── 20-check-step20.yml        # Validates Step 20, opens Step 21 issue
-│   │   └── 21-check-step21.yml        # Validates Step 21, posts course-complete (final, self-disables)
+│   │   ├── 21-check-step21.yml        # Validates Step 21, opens Step 22 issue
+│   │   └── 22-check-step22.yml        # Validates Step 22 capstone, posts course-complete (final, self-disables)
 │   ├── steps/
 │   │   ├── 00-welcome.md              # Posted into Issue #0 (kickoff)
 │   │   ├── 01-install-sdk.md          # Theory + exercise for Step 1 (posted into issue)
@@ -82,10 +83,12 @@ anthropic-sdk-course/
 │   │   ├── 18-files-api.md            # Theory + exercise for Step 18
 │   │   ├── 19-code-execution-tool.md  # Theory + exercise for Step 19
 │   │   ├── 20-web-search-tool.md      # Theory + exercise for Step 20
-│   │   ├── 21-bedrock-vertex-clients.md # Theory + exercise for Step 21 (final)
-│   │   └── 04-course-complete.md      # Final congratulations message
+│   │   ├── 21-bedrock-vertex-clients.md # Theory + exercise for Step 21
+│   │   ├── 22-capstone.md              # Build-an-app brief for Step 22 (final step)
+│   │   └── 23-course-complete.md       # Final congratulations message
 │   └── scripts/
-│       ├── check_step1.py .. check_step21.py  # One small Python validator per step
+│       ├── _report.py                 # Shared expected/actual/hint failure reporting
+│       ├── check_step1.py .. check_step22.py  # One small Python validator per step
 │       #   (imports/execs the learner's exercise file and checks its output/behavior)
 └── exercises/                         # Learner writes files HERE as they progress
     └── (empty at start — the learner creates practice*.py here)
@@ -155,7 +158,7 @@ github/skills courses use the same push-based approach for code exercises.
      closed — the learner reads the failure output, fixes their code, and
      pushes again. This is safe to repeat indefinitely.
 5. This repeats for Step 2, Step 3, ... until the last step's workflow posts
-   `.github/steps/04-course-complete.md` into a final issue and disables
+   `.github/steps/23-course-complete.md` into a final issue and disables
    itself — no more workflows are left enabled, so the course naturally
    stops.
 
@@ -202,8 +205,9 @@ github/skills courses use the same push-based approach for code exercises.
 
 ## 6. Scope of this course
 
-This repo implements **all 21 steps** end-to-end, covering every section of
-the Anthropic Python SDK reference material:
+This repo implements **all 22 steps** end-to-end, covering every section of
+the Anthropic Python SDK reference material plus a capstone that asks the
+learner to assemble the pieces without a copy-pasteable answer:
 
 - **Step 1** — Installation & Setup (`Anthropic()` client construction, env
   var vs explicit key).
@@ -228,8 +232,10 @@ the Anthropic Python SDK reference material:
 - **Step 18** — Files API: upload once, reference by ID.
 - **Step 19** — Code execution tool (server-side sandbox).
 - **Step 20** — Web search tool (server-side).
-- **Step 21** — Bedrock and Vertex client variants (final step, posts
-  course-complete).
+- **Step 21** — Bedrock and Vertex client variants.
+- **Step 22** — Capstone: build a tool-using CLI assistant (multi-turn
+  conversation + `tool_use`/`tool_result` round trip + specific-exception
+  handling + safe text extraction). Final step, posts course-complete.
 
 Every step follows the **exact same pattern**: a `.github/steps/NN-*.md` file
 (theory + exercise, adapted from the reference doc), a

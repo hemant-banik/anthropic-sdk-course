@@ -1,5 +1,11 @@
 ## 📘 Step 12 — Prompt caching
 
+<!-- pedagogy-header:begin -->
+**Phase 4: Production concerns** · Step 12 of 22 · ~20 min · ~$0.01 in API calls
+
+> **Why this matters:** This is how production chatbots cut their bill by up to 90%: a long system prompt or document gets paid for once, then re-read at a tenth of the price on every later turn.
+<!-- pedagogy-header:end -->
+
 ### 🎯 What you'll learn
 
 - What prompt caching is: paying to process a big prompt **once** instead of every time
@@ -363,5 +369,18 @@ first, variable content last.
   the second read count > 0. Don't rename any printed label.
 - If the check fails complaining about `ICA_API_KEY`, make sure it's set as
   a repo secret (Settings → Secrets and variables → Actions).
+
+</details>
+
+<details>
+<summary>Stuck? Reveal the solution</summary>
+
+Give it a real attempt first — debugging your own code is where the learning
+happens. If you're properly stuck, the complete working reference is here:
+
+**[`solutions/practice12_caching.py`](../../solutions/practice12_caching.py)**
+
+Copy it to `exercises/practice12_caching.py`, run it, then read it line by line and make
+sure you can explain *why* each part is there.
 
 </details>

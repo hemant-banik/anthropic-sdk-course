@@ -1,5 +1,11 @@
 ## 📘 Step 9 — Extended thinking
 
+<!-- pedagogy-header:begin -->
+**Phase 3: Tools & reasoning** · Step 9 of 22 · ~20 min · ~$0.03 in API calls
+
+> **Why this matters:** On multi-step math, planning, and debugging, a thinking budget is the cheapest accuracy upgrade available — and the ThinkingBlock ordering rule here is a real bug that bites production code.
+<!-- pedagogy-header:end -->
+
 ### 🎯 What you'll learn
 
 - What **extended thinking** is: Claude's scratch paper, returned to you as a separate block
@@ -343,5 +349,18 @@ plenty of headroom.
   rename any printed label.
 - If the check fails complaining about `ICA_API_KEY`, make sure it's set as
   a repo secret (Settings → Secrets and variables → Actions).
+
+</details>
+
+<details>
+<summary>Stuck? Reveal the solution</summary>
+
+Give it a real attempt first — debugging your own code is where the learning
+happens. If you're properly stuck, the complete working reference is here:
+
+**[`solutions/practice9_thinking.py`](../../solutions/practice9_thinking.py)**
+
+Copy it to `exercises/practice9_thinking.py`, run it, then read it line by line and make
+sure you can explain *why* each part is there.
 
 </details>

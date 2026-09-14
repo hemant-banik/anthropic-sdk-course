@@ -6,62 +6,82 @@ project's gateway using a deliberately invalid model name) and checks
 stdout has the labeled error_type/error_message output, proving the
 exception was caught rather than crashing the script.
 """
-import os
-import subprocess
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _report import (
+    CLIENT_SETUP_CHECKS,
+    check_source,
+    contains,
+    fail,
+    require_api_key,
+    require_exercise,
+    require_labels,
+    run_exercise,
+)
 
 EXERCISE_PATH = Path("exercises/practice16_error_handling.py")
 
 REQUIRED_LABELS = ["error_type:", "error_message:"]
 
+LABEL_HINTS = {
+    "error_type:": (
+        "Inside the except block print the exception class name, e.g. "
+        'print("error_type:", type(exc).__name__).'
+    ),
+    "error_message:": (
+        'Also print the message: print("error_message:", str(exc)) — both labels are '
+        "required so the grader can see the error was handled."
+    ),
+}
 
-def fail(msg: str) -> None:
-    print(f"❌ FAIL: {msg}")
-    sys.exit(1)
+SOURCE_CHECKS = CLIENT_SETUP_CHECKS + [
+    (
+        # Original grader required both markers together.
+        lambda src: "except" in src and "anthropic." in src,
+        "Your script doesn't appear to catch an anthropic exception type.",
+        "Wrap the call in try/except and catch the SDK's own class, e.g. "
+        "'except anthropic.APIStatusError as exc:' — a bare 'except Exception' won't "
+        "show you the status code.",
+    ),
+]
 
 
 def main() -> None:
-    if not os.environ.get("ICA_API_KEY"):
-        fail(
-            "ICA_API_KEY is not set. Add it as a repo secret: "
-            "Settings -> Secrets and variables -> Actions -> New repository secret."
-        )
+    require_api_key()
+    source = require_exercise(EXERCISE_PATH)
+    check_source(source, SOURCE_CHECKS)
 
-    if not EXERCISE_PATH.exists():
-        fail(f"{EXERCISE_PATH} does not exist. Create it as instructed in the issue.")
-
-    source = EXERCISE_PATH.read_text()
-    if "load_dotenv()" not in source:
-        fail("Your script doesn't call load_dotenv() — this project loads the key from a .env file.")
-    if "ICA_API_KEY" not in source:
-        fail("Your script doesn't reference ICA_API_KEY — that's the key name this project uses.")
-    if "base_url=" not in source:
-        fail("Your script doesn't set base_url= — this project routes requests through a custom gateway.")
-    if "except" not in source or "anthropic." not in source:
-        fail("Your script doesn't appear to catch an anthropic exception type.")
-
-    result = subprocess.run(
-        [sys.executable, str(EXERCISE_PATH)],
-        capture_output=True,
-        text=True,
+    stdout = run_exercise(
+        EXERCISE_PATH,
         timeout=60,
-    )
-    if result.returncode != 0:
-        fail(
+        error_msg=(
             "Your script raised an uncaught error when run (the exception "
-            "should have been caught, not crash the script):\n"
-            f"--- stdout ---\n{result.stdout}\n"
-            f"--- stderr ---\n{result.stderr}"
+            "should have been caught, not crash the script):"
+        ),
+        error_hint=(
+            "The error escaped your try/except. Either the create() call sits outside "
+            "the try block, or you're catching the wrong class — an invalid model name "
+            "raises anthropic.NotFoundError, a subclass of anthropic.APIStatusError."
+        ),
+    )
+
+    if contains(stdout, "No error was raised"):
+        fail(
+            "The API call succeeded instead of failing — use an invalid model name so an error is actually raised.",
+            expected=(
+                "the API call to FAIL and be caught, so stdout must NOT contain "
+                "'No error was raised'"
+            ),
+            actual=stdout,
+            hint=(
+                'Use a model string that cannot exist, e.g. model="claude-does-not-'
+                'exist-99" — a real model name succeeds and there is no error to catch.'
+            ),
         )
 
-    stdout = result.stdout
-    if "No error was raised" in stdout:
-        fail("The API call succeeded instead of failing — use an invalid model name so an error is actually raised.")
-
-    for label in REQUIRED_LABELS:
-        if label not in stdout:
-            fail(f"Expected a line starting with '{label}' in stdout. Got:\n{stdout}")
+    require_labels(stdout, REQUIRED_LABELS, LABEL_HINTS)
 
     print("✅ PASS: error was deliberately triggered and caught correctly.")
     print(stdout)

@@ -47,8 +47,9 @@ keep reading — the definition is on the same screen.
 
 - [Where to write your code (you don't need Python installed)](#-where-to-write-your-code-you-dont-need-python-installed)
 - [Start the course](#-start-the-course)
+- [Verify your setup (30 seconds)](#-verify-your-setup-30-seconds)
 - [How the course loop works](#-how-the-course-loop-works)
-- [The full 21 steps](#-the-full-21-steps)
+- [The full 22 steps](#-the-full-22-steps)
 - [Requirements](#requirements)
 - [Cheat sheet + glossary](#-cheat-sheet)
 
@@ -519,7 +520,7 @@ deliberate cost decision, and we want you to know it rather than wonder:
 - Every step runs **twice**: once when you test locally, once again when the
   GitHub Action grades your push. Using the priciest model would double an
   already-doubled bill.
-- Opus costs roughly **5× more per token** than Sonnet. Across 21 steps × 2 runs,
+- Opus costs roughly **5× more per token** than Sonnet. Across 22 steps × 2 runs,
   that difference is the entire point.
 
 So if you see a tutorial elsewhere using an Opus model string, that's fine —
@@ -1165,12 +1166,26 @@ terminal are already there.
 4. Wait ~30–60 seconds while it builds. VS Code opens in your browser, with your
    repo files already there.
 
-**Then, in the Codespace terminal** (`Terminal → New Terminal`, or ``Ctrl+` ``):
+This repo ships a **dev container** (`.devcontainer/devcontainer.json`), so that
+build already does the boring parts for you:
+
+- Python 3.11 is installed and selected as the interpreter.
+- `pip install -r requirements.txt` has already run (`anthropic` + `python-dotenv`).
+- A `.env` has been created for you from `.env.example` (only if you didn't
+  already have one — it never overwrites your key).
+- The Python extension is installed, so the ▷ **Run** button works.
+
+So the only thing left for you to do is **paste your key into `.env`** — the
+welcome message in the terminal reminds you. Then verify everything at once:
 
 ```bash
-pip install -r requirements.txt
-python exercises/practice2.py
+python3 scripts/preflight.py
 ```
+
+See [Verify your setup](#-verify-your-setup-30-seconds) for what that checks.
+
+> If you opened the Codespace *before* this dev container existed, run
+> **`Codespaces: Rebuild Container`** from the Command Palette (`F1`) to pick it up.
 
 > 💳 **Free hours:** personal GitHub accounts include a monthly allowance of free
 > Codespaces compute hours and storage on the smallest machine type — plenty for a
@@ -1356,11 +1371,68 @@ Open `.env` and replace the placeholder with your real key:
 ICA_API_KEY=your-actual-key-here
 ```
 
-Then confirm the SDK imports:
+> 💡 **In a Codespace, most of this is already done for you** — the dev container
+> installs the requirements and creates `.env` on first build. You still have to
+> paste your key in.
+
+Then verify the whole setup in one shot (see next section):
 
 ```bash
-python -c "import anthropic; print('SDK version:', anthropic.__version__)"
+python3 scripts/preflight.py
 ```
+
+### ✅ Verify your setup (30 seconds)
+
+*Optional, between Step 3 and Step 4.* Run the preflight check. It turns "why
+doesn't my code work?" into a specific, named problem:
+
+```bash
+python3 scripts/preflight.py
+```
+
+It prints one `✅ PASS` / `❌ FAIL` line per check, and every failure comes with a
+one-line fix:
+
+| # | Check | Why it matters |
+|---|---|---|
+| 1 | Python is 3.9 or newer | The SDK requires it |
+| 2 | `anthropic` imports (and its version) | Proves `pip install` actually landed in *this* Python |
+| 3 | `python-dotenv` imports | Without it, `load_dotenv()` is an `ImportError` |
+| 4 | A `.env` file exists | `load_dotenv()` fails *silently* when it doesn't |
+| 5 | `ICA_API_KEY` is set, non-empty, and not still the placeholder | Catches the #1 setup mistake |
+| 6 | A real **1-token API call** to the gateway succeeds | The only way to prove your key *and* network actually work |
+
+Example of a good run:
+
+```text
+Preflight check — Anthropic Python SDK course
+====================================================
+✅ PASS  Python version >= 3.9: Python 3.11.9
+✅ PASS  anthropic SDK installed: anthropic 0.40.0
+✅ PASS  python-dotenv installed: python-dotenv installed
+✅ PASS  .env file exists: found .env
+✅ PASS  ICA_API_KEY looks like a real key: ICA_API_KEY present (40 chars, ends …90ab)
+✅ PASS  Live API call (1 token): live call to claude-sonnet-5 succeeded (stop_reason=max_tokens)
+====================================================
+✅ All 6 checks passed — your environment is ready.
+   Next: open the Step 1 issue in the Issues tab and start coding.
+```
+
+And a failure — note the specific fix on the line underneath:
+
+```text
+❌ FAIL  ICA_API_KEY looks like a real key: ICA_API_KEY still holds the placeholder value 'your-key-here'
+         → Fix: Replace it in .env with your real key:  ICA_API_KEY=<your real key>
+```
+
+It exits `0` when everything passes and `1` if anything failed, so you can also
+use it as a quick sanity check any time the course starts misbehaving.
+
+> 💰 Check 6 makes one real API call with `max_tokens=1` — the smallest billable
+> request there is. Fractions of a cent.
+>
+> 🧰 This script is for **you**. The grader has its own separate checks in
+> `.github/scripts/`; you never need to run those.
 
 ### Step 4 — Kick it off
 
@@ -1378,7 +1450,7 @@ lesson. Everything from here happens in issues.
 >
 > Individually these are tiny (`max_tokens` is kept small on purpose, and the
 > whole course uses `claude-sonnet-5` rather than a pricier model). Cumulatively,
-> 21 steps × 2 runs × any re-tries adds up. A few habits keep it negligible:
+> 22 steps × 2 runs × any re-tries adds up. A few habits keep it negligible:
 >
 > - Don't push a "let's see what happens" commit — run it locally first.
 > - Keep `max_tokens` at the value the exercise suggests.
@@ -1389,8 +1461,8 @@ lesson. Everything from here happens in issues.
 
 ## 🔄 How the course loop works
 
-Every one of the 21 steps follows the same rhythm. Once you've done it once,
-you've done it 21 times.
+Every one of the 22 steps follows the same rhythm. Once you've done it once,
+you've done it 22 times.
 
 ```mermaid
 graph TD
@@ -1408,7 +1480,7 @@ graph TD
     K --> G
     J -->|"Pass: Pass"| L["Bot closes this issue<br/>and opens the NEXT step's issue"]
     L --> B
-    L -.->|"after step 21"| M[" Course complete!"]
+    L -.->|"after step 22"| M[" Course complete!"]
 
     style A fill:#e3f2fd,stroke:#1e88e5
     style L fill:#e8f5e9,stroke:#43a047,stroke-width:2px
@@ -1416,7 +1488,7 @@ graph TD
     style M fill:#fff9c4,stroke:#f9a825,stroke-width:2px
 ```
 
-**Pushing your work — the three commands you'll use 21 times:**
+**Pushing your work — the three commands you'll use 22 times:**
 
 ```bash
 git add exercises/practice2.py
@@ -1431,35 +1503,77 @@ watching teacher. The bot's comment tells you what it expected versus what it
 found. Fix, push again. That's the loop — and iterating is how everyone learns
 this.
 
+**Graders ignore formatting.** Capitalisation and spacing around colons don't
+matter — `Turn 1:`, `turn 1 :` and `Turn  1:` are all accepted. The *values*
+still have to be right: if a count should be `4`, `3` won't pass.
+
+**Want to start over?** To redo the course from Step 1, run:
+
+```bash
+./scripts/reset_course.sh --dry-run   # preview first, changes nothing
+./scripts/reset_course.sh             # asks you to confirm
+```
+
+One gotcha worth knowing: simply re-running the "Step 0 - Start Course"
+workflow **won't** reopen Step 1. It skips itself when course issues already
+exist — *including closed ones* — and still reports success, so nothing appears
+to happen. The reset script handles that. See
+[**Restarting or resetting the course**](SETUP-GUIDE.md) in `SETUP-GUIDE.md`
+(section 6) for the manual steps and the full explanation.
+
 ---
 
-## 📚 The full 21 steps
+## 📚 The full 22 steps
 
 Each step builds on the last. Everything uses `claude-sonnet-5`.
 
-| Step | Topic | The new idea | API calls? |
+The 22 steps are grouped into **5 phases**. Each phase is a coherent chunk you
+can finish in one sitting — a natural place to stop for the day.
+
+| Phase | Steps | What you'll learn | Est. time |
 |---|---|---|---|
-| 1 | Install the SDK & create a client | `pip install`, `load_dotenv()`, `Anthropic(api_key=..., base_url=...)` | ❌ none |
-| 2 | Your first `messages.create()` | `model`, `max_tokens`, `messages` — the three required kwargs | ✅ |
-| 3 | Inspect the full response | `.content`, `.usage`, `.stop_reason`, `.id`, `.model` | ✅ |
-| 4 | Message roles & multi-turn | `user`/`assistant` alternation; growing the `messages` list; `get_text()` | ✅ |
-| 5 | Content blocks: text + image | `content` as a list of typed blocks; base64 image input | ✅ |
-| 6 | Streaming | `client.messages.stream()`, printing tokens as they arrive | ✅ |
-| 7 | Structured / JSON output | Getting reliably parseable JSON back | ✅ |
-| 8 | Tool use | Letting Claude call *your* functions; the tool-result round trip | ✅ |
-| 9 | Extended thinking | `thinking={...}`, `budget_tokens`, and the **ThinkingBlock** ordering gotcha | ✅ |
-| 10 | Vision: multiple images | Several images in one request; comparing them | ✅ |
-| 11 | PDF support | Sending documents; page-aware questions | ✅ |
-| 12 | Prompt caching | `cache_control` to stop paying repeatedly for the same prefix | ✅ |
-| 13 | Token counting | `count_tokens()` — estimate cost *before* you spend | ✅ |
-| 14 | Batch API | Submit many requests, poll, collect results (cheaper, async) | ✅ |
-| 15 | Async client | `AsyncAnthropic`, `async`/`await`, concurrent calls | ✅ |
-| 16 | Error handling | `APIError`, `RateLimitError`, `APIStatusError`, retries | ✅ |
-| 17 | Compare models | `client.models.list()`; same call, different model string | ✅ |
-| 18 | Files API | Upload once, reference by ID across many calls | ✅ |
-| 19 | Code execution tool | Server-side sandbox that runs Python for you | ✅ |
-| 20 | Web search tool | Server-side web search with citations | ✅ |
-| 21 | Bedrock & Vertex clients | `AnthropicBedrock`, `AnthropicVertex` — same API, different clouds | ✅ |
+| **1 · Foundations** | 1–4 | Install the SDK, make your first call, read every field on the response, and hold a multi-turn conversation. The vocabulary the other 18 steps assume. | ~1 hr |
+| **2 · Input & output types** | 5–7, 10, 11 | Feed Claude more than a string — images, several images at once, whole PDFs — and get machine-readable JSON back instead of prose. Plus streaming, so output appears as it's written. | ~1.5 hrs |
+| **3 · Tools & reasoning** | 8, 9, 19, 20 | Let Claude *act*: call your own Python functions, show its reasoning with extended thinking, run code in a server-side sandbox, and search the live web with citations. | ~1.5 hrs |
+| **4 · Production concerns** | 12–16 | The things that decide whether your app survives real traffic: caching to cut cost up to 90%, counting tokens before you spend, batch jobs at 50% off, async concurrency, and error handling with retries. | ~1.5 hrs |
+| **5 · Scale & deployment** | 17, 18, 21 | Picking the right model for the job, uploading a file once and reusing it by ID, and running the same code on AWS Bedrock or Google Vertex. | ~1 hr |
+| **5 · Capstone** | 22 | No new API surface — you assemble the pieces yourself. Build a CLI assistant that holds a conversation, calls a real tool, and survives API errors, working from a requirements brief instead of copy-pasteable code. | ~45 min |
+
+**Whole course: ~7¼ hours of focused work and well under $1 of API spend.**
+
+Every step file opens with its own phase marker, progress counter, and honest
+time/cost estimate, e.g.:
+
+```text
+**Phase 4: Production concerns** · Step 12 of 22 · ~20 min · ~$0.01 in API calls
+```
+
+### Step-by-step detail
+
+| Step | Phase | Topic | The new idea | API calls? |
+|---|---|---|---|---|
+| 1 | 1 | Install the SDK & create a client | `pip install`, `load_dotenv()`, `Anthropic(api_key=..., base_url=...)` | ❌ none |
+| 2 | 1 | Your first `messages.create()` | `model`, `max_tokens`, `messages` — the three required kwargs | ✅ |
+| 3 | 1 | Inspect the full response | `.content`, `.usage`, `.stop_reason`, `.id`, `.model` | ✅ |
+| 4 | 1 | Message roles & multi-turn | `user`/`assistant` alternation; growing the `messages` list; `get_text()` | ✅ |
+| 5 | 2 | Content blocks: text + image | `content` as a list of typed blocks; base64 image input | ✅ |
+| 6 | 2 | Streaming | `client.messages.stream()`, printing tokens as they arrive | ✅ |
+| 7 | 2 | Structured / JSON output | Getting reliably parseable JSON back | ✅ |
+| 8 | 3 | Tool use | Letting Claude call *your* functions; the tool-result round trip | ✅ |
+| 9 | 3 | Extended thinking | `thinking={...}`, `budget_tokens`, and the **ThinkingBlock** ordering gotcha | ✅ |
+| 10 | 2 | Vision: multiple images | Several images in one request; comparing them | ✅ |
+| 11 | 2 | PDF support | Sending documents; page-aware questions | ✅ |
+| 12 | 4 | Prompt caching | `cache_control` to stop paying repeatedly for the same prefix | ✅ |
+| 13 | 4 | Token counting | `count_tokens()` — estimate cost *before* you spend | ✅ |
+| 14 | 4 | Batch API | Submit many requests, poll, collect results (cheaper, async) | ✅ |
+| 15 | 4 | Async client | `AsyncAnthropic`, `async`/`await`, concurrent calls | ✅ |
+| 16 | 4 | Error handling | `APIError`, `RateLimitError`, `APIStatusError`, retries | ✅ |
+| 17 | 5 | Compare models | `client.models.list()`; same call, different model string | ✅ |
+| 18 | 5 | Files API | Upload once, reference by ID across many calls | ✅ |
+| 19 | 3 | Code execution tool | Server-side sandbox that runs Python for you | ✅ |
+| 20 | 3 | Web search tool | Server-side web search with citations | ✅ |
+| 21 | 5 | Bedrock & Vertex clients | `AnthropicBedrock`, `AnthropicVertex` — same API, different clouds | ✅ |
+| 22 | 5 | **Capstone: tool-using assistant** | Build it yourself — conversation loop + tool round trip + `try`/`except` | ✅ |
 
 **Repo layout:**
 
@@ -1618,7 +1732,7 @@ this](#-what-happens-if-you-miss-this) — the odds are very good your error is 
 of those four.
 
 You're about to write a program that talks to a large language model. That's a
-genuinely new capability, and by Step 21 it'll feel routine.
+genuinely new capability, and by Step 22 it'll feel routine.
 
 **Ready?** → [Use this template](../../generate), then **Actions** → **Start
 Course** → **Run workflow**. Your first issue is waiting. 🚀

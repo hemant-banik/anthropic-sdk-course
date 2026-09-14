@@ -6,48 +6,59 @@ two expected lines. Exits 0 on pass, 1 on fail (with a human-readable
 reason printed to stdout so it shows up in the Actions log and, if needed,
 in the issue comment).
 """
-import subprocess
 import sys
 from pathlib import Path
+
+# Workflows run this from the repo root, so the script dir isn't on sys.path.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _report import (  # noqa: E402
+    CLIENT_SETUP_CHECKS,
+    check_source,
+    fail,
+    require_exercise,
+    require_in_stdout,
+    run_exercise,
+)
 
 EXERCISE_PATH = Path("exercises/practice1.py")
 
 
-def fail(msg: str) -> None:
-    print(f"❌ FAIL: {msg}")
-    sys.exit(1)
-
-
 def main() -> None:
-    if not EXERCISE_PATH.exists():
-        fail(f"{EXERCISE_PATH} does not exist. Create it as instructed in the issue.")
+    source = require_exercise(EXERCISE_PATH)
+    check_source(source, CLIENT_SETUP_CHECKS)
 
-    source = EXERCISE_PATH.read_text()
-    if "load_dotenv()" not in source:
-        fail("Your script doesn't call load_dotenv() — this project loads the key from a .env file.")
-    if "ICA_API_KEY" not in source:
-        fail("Your script doesn't reference ICA_API_KEY — that's the key name this project uses.")
-    if "base_url=" not in source:
-        fail("Your script doesn't set base_url= — this project routes requests through a custom gateway.")
-
-    result = subprocess.run(
-        [sys.executable, str(EXERCISE_PATH)],
-        capture_output=True,
-        text=True,
+    stdout = run_exercise(
+        EXERCISE_PATH,
         timeout=60,
+        error_hint=(
+            "Read the stderr traceback above — its last line names the real problem. "
+            "ModuleNotFoundError means 'pip install anthropic python-dotenv' hasn't "
+            "run; a TypeError on Anthropic(...) usually means a misspelled keyword."
+        ),
     )
-    if result.returncode != 0:
-        fail(
-            "Your script raised an error when run:\n"
-            f"--- stdout ---\n{result.stdout}\n"
-            f"--- stderr ---\n{result.stderr}"
-        )
 
-    stdout = result.stdout
-    if "SDK version:" not in stdout:
-        fail("Expected a line starting with 'SDK version:' in stdout.")
-    if "Client type: Anthropic" not in stdout:
-        fail("Expected a line 'Client type: Anthropic' in stdout.")
+    require_in_stdout(
+        stdout,
+        "SDK version:",
+        "Expected a line starting with 'SDK version:' in stdout.",
+        expected="stdout to contain the literal text 'SDK version:'",
+        hint=(
+            'Print the installed version with the exact label, e.g. '
+            'print("SDK version:", anthropic.__version__) — note the capital "SDK" '
+            "and the colon."
+        ),
+    )
+    require_in_stdout(
+        stdout,
+        "Client type: Anthropic",
+        "Expected a line 'Client type: Anthropic' in stdout.",
+        expected="stdout to contain the literal text 'Client type: Anthropic'",
+        hint=(
+            'Print the class name, e.g. print("Client type:", type(client).__name__) '
+            "— that yields 'Anthropic'. Printing the object itself gives "
+            "'<anthropic.Anthropic object at 0x...>', which does not match."
+        ),
+    )
 
     print("✅ PASS: SDK installed and client created correctly.")
     print(stdout)

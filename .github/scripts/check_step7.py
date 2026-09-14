@@ -5,62 +5,77 @@ Runs exercises/practice7_json.py (live API call through this project's
 gateway) and checks stdout shows the raw text plus successfully parsed
 'name'/'age' fields with the correct Python type for age.
 """
-import os
-import subprocess
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _report import (
+    CLIENT_SETUP_CHECKS,
+    check_source,
+    contains,
+    fail,
+    require_api_key,
+    require_exercise,
+    require_labels,
+    run_exercise,
+)
 
 EXERCISE_PATH = Path("exercises/practice7_json.py")
 
 REQUIRED_LABELS = ["raw:", "parsed name:", "parsed age:", "age type:"]
 
+LABEL_HINTS = {
+    "raw:": 'print("raw:", raw_text) — the unparsed string Claude returned.',
+    "parsed name:": 'After json.loads(), print("parsed name:", data["name"]).',
+    "parsed age:": 'After json.loads(), print("parsed age:", data["age"]).',
+    "age type:": (
+        'print("age type:", type(data["age"]).__name__) — that prints the bare word '
+        "'int' rather than \"<class 'int'>\"."
+    ),
+}
 
-def fail(msg: str) -> None:
-    print(f"❌ FAIL: {msg}")
-    sys.exit(1)
+SOURCE_CHECKS = CLIENT_SETUP_CHECKS + [
+    (
+        "json.loads(",
+        "Your script doesn't call json.loads() to parse Claude's reply.",
+        "Import json and parse the reply text: data = json.loads(raw_text). The API "
+        "returns a string — only json.loads() turns it into a dict.",
+    ),
+]
 
 
 def main() -> None:
-    if not os.environ.get("ICA_API_KEY"):
-        fail(
-            "ICA_API_KEY is not set. Add it as a repo secret: "
-            "Settings -> Secrets and variables -> Actions -> New repository secret."
-        )
+    require_api_key()
+    source = require_exercise(EXERCISE_PATH)
+    check_source(source, SOURCE_CHECKS)
 
-    if not EXERCISE_PATH.exists():
-        fail(f"{EXERCISE_PATH} does not exist. Create it as instructed in the issue.")
-
-    source = EXERCISE_PATH.read_text()
-    if "load_dotenv()" not in source:
-        fail("Your script doesn't call load_dotenv() — this project loads the key from a .env file.")
-    if "ICA_API_KEY" not in source:
-        fail("Your script doesn't reference ICA_API_KEY — that's the key name this project uses.")
-    if "base_url=" not in source:
-        fail("Your script doesn't set base_url= — this project routes requests through a custom gateway.")
-    if "json.loads(" not in source:
-        fail("Your script doesn't call json.loads() to parse Claude's reply.")
-
-    result = subprocess.run(
-        [sys.executable, str(EXERCISE_PATH)],
-        capture_output=True,
-        text=True,
+    stdout = run_exercise(
+        EXERCISE_PATH,
         timeout=60,
-    )
-    if result.returncode != 0:
-        fail(
+        error_msg=(
             "Your script raised an error when run (often a JSON parsing error — "
-            "print raw_text to debug what Claude actually returned):\n"
-            f"--- stdout ---\n{result.stdout}\n"
-            f"--- stderr ---\n{result.stderr}"
+            "print raw_text to debug what Claude actually returned):"
+        ),
+        error_hint=(
+            "A JSONDecodeError means the reply wasn't pure JSON — Claude often wraps it "
+            "in prose or ```json fences. Ask for 'JSON only, no other text' and/or "
+            "strip the fences before json.loads()."
+        ),
+    )
+
+    require_labels(stdout, REQUIRED_LABELS, LABEL_HINTS)
+
+    if not contains(stdout, "age type: int"):
+        fail(
+            "Expected 'age type: int' — json.loads() should parse age as an integer. Got:",
+            expected="stdout to contain the literal text 'age type: int'",
+            actual=stdout,
+            hint=(
+                "'age type: str' means the model quoted the number (\"age\": \"30\"). "
+                "Ask for age as a JSON number, or print "
+                'type(data["age"]).__name__ after coercing with int().'
+            ),
         )
-
-    stdout = result.stdout
-    for label in REQUIRED_LABELS:
-        if label not in stdout:
-            fail(f"Expected a line starting with '{label}' in stdout. Got:\n{stdout}")
-
-    if "age type: int" not in stdout:
-        fail(f"Expected 'age type: int' — json.loads() should parse age as an integer. Got:\n{stdout}")
 
     print("✅ PASS: JSON output requested and parsed correctly.")
     print(stdout)

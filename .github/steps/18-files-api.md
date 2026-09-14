@@ -1,5 +1,11 @@
 ## 📘 Step 18 — Upload once, reference by ID
 
+<!-- pedagogy-header:begin -->
+**Phase 5: Scale & deployment** · Step 18 of 22 · ~20 min · ~$0.005 in API calls
+
+> **Why this matters:** Upload the 200-page manual once and reference it by ID forever — re-sending the same base64 blob on every question is the most common way teams accidentally 10x their upload bandwidth.
+<!-- pedagogy-header:end -->
+
 ### 🎯 What you'll learn
 
 - What the Files API is for, and why re-sending a file on every request is wasteful
@@ -381,5 +387,18 @@ successfully read it.
   `file_id:` and `summary:`.
 - Whole script must finish within 60 seconds — one upload plus one short
   summary is well inside that.
+
+</details>
+
+<details>
+<summary>Stuck? Reveal the solution</summary>
+
+Give it a real attempt first — debugging your own code is where the learning
+happens. If you're properly stuck, the complete working reference is here:
+
+**[`solutions/practice18_files_api.py`](../../solutions/practice18_files_api.py)**
+
+Copy it to `exercises/practice18_files_api.py`, run it, then read it line by line and make
+sure you can explain *why* each part is there.
 
 </details>

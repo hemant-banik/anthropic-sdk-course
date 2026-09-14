@@ -6,62 +6,72 @@ gateway) and checks stdout has all six expected labeled lines, that the
 id/role/stop_reason values look right, and that the client setup still uses
 this project's real pattern (load_dotenv + ICA_API_KEY + base_url).
 """
-import os
-import re
-import subprocess
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _report import (
+    CLIENT_SETUP_CHECKS,
+    check_source,
+    contains,
+    fail,
+    require_api_key,
+    require_exercise,
+    require_labels,
+    run_exercise,
+)
 
 EXERCISE_PATH = Path("exercises/practice_inspect.py")
 
 REQUIRED_LABELS = ["id:", "model:", "role:", "stop_reason:", "usage:", "text:"]
 
-
-def fail(msg: str) -> None:
-    print(f"❌ FAIL: {msg}")
-    sys.exit(1)
+LABEL_HINTS = {
+    "id:": 'print("id:", response.id) — the message id, e.g. msg_01ABC...',
+    "model:": 'print("model:", response.model) — the model that actually served the request.',
+    "role:": 'print("role:", response.role) — always "assistant" on a reply.',
+    "stop_reason:": 'print("stop_reason:", response.stop_reason) — e.g. "end_turn".',
+    "usage:": 'print("usage:", response.usage) — the input/output token counts.',
+    "text:": 'print("text:", response.content[0].text) — the actual reply text.',
+}
 
 
 def main() -> None:
-    if not os.environ.get("ICA_API_KEY"):
-        fail(
-            "ICA_API_KEY is not set. Add it as a repo secret: "
-            "Settings -> Secrets and variables -> Actions -> New repository secret."
-        )
+    require_api_key()
+    source = require_exercise(EXERCISE_PATH)
+    check_source(source, CLIENT_SETUP_CHECKS)
 
-    if not EXERCISE_PATH.exists():
-        fail(f"{EXERCISE_PATH} does not exist. Create it as instructed in the issue.")
-
-    source = EXERCISE_PATH.read_text()
-    if "load_dotenv()" not in source:
-        fail("Your script doesn't call load_dotenv() — this project loads the key from a .env file.")
-    if "ICA_API_KEY" not in source:
-        fail("Your script doesn't reference ICA_API_KEY — that's the key name this project uses.")
-    if "base_url=" not in source:
-        fail("Your script doesn't set base_url= — this project routes requests through a custom gateway.")
-
-    result = subprocess.run(
-        [sys.executable, str(EXERCISE_PATH)],
-        capture_output=True,
-        text=True,
+    stdout = run_exercise(
+        EXERCISE_PATH,
         timeout=60,
+        error_hint=(
+            "Check the last line of the stderr traceback. AttributeError here usually "
+            "means you used a wrong field name — the response has .id, .model, .role, "
+            ".stop_reason, .usage and .content."
+        ),
     )
-    if result.returncode != 0:
+
+    require_labels(stdout, REQUIRED_LABELS, LABEL_HINTS)
+
+    if not contains(stdout, "id: msg_"):
         fail(
-            "Your script raised an error when run:\n"
-            f"--- stdout ---\n{result.stdout}\n"
-            f"--- stderr ---\n{result.stderr}"
+            "Expected the printed 'id:' to start with 'msg_'.",
+            expected="a line matching the regex  id:\\s*msg_  (e.g. 'id: msg_01AbC...')",
+            actual=stdout,
+            hint=(
+                "Print response.id itself, not the whole response or a nested field. "
+                "Real message ids always begin with the 'msg_' prefix."
+            ),
         )
-
-    stdout = result.stdout
-    for label in REQUIRED_LABELS:
-        if label not in stdout:
-            fail(f"Expected a line starting with '{label}' in stdout. Got:\n{stdout}")
-
-    if not re.search(r"id:\s*msg_", stdout):
-        fail("Expected the printed 'id:' to start with 'msg_'.")
-    if "role: assistant" not in stdout:
-        fail("Expected 'role: assistant' in stdout.")
+    if not contains(stdout, "role: assistant"):
+        fail(
+            "Expected 'role: assistant' in stdout.",
+            expected="stdout to contain the literal text 'role: assistant'",
+            actual=stdout,
+            hint=(
+                'Use print("role:", response.role) — that is the reply\'s role and it '
+                'is always "assistant". Printing the role you *sent* gives "user".'
+            ),
+        )
 
     print("✅ PASS: response object inspected correctly.")
     print(stdout)

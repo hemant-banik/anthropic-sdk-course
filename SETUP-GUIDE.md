@@ -124,9 +124,121 @@ the same workflow re-triggers on the next push to that file.
 
 ---
 
-## 6. Extending to more sections
+## 6. Restarting or resetting the course
 
-This scaffold wires up Sections 1-2 of the 21-section reference material
+Sooner or later you'll want a clean slate — you tested the flow yourself
+and now want to hand the repo to a learner, or a learner wants to redo the
+course from Step 1.
+
+### Read this first: the confusing case
+
+**Re-running "Step 0 - Start Course" when Step 1 issues already exist does
+nothing — and still reports success.**
+
+Step 0 guards against opening duplicate issues:
+
+```bash
+gh issue list --label "step-1" --state all
+```
+
+Note `--state all`. The guard counts **closed** issues too. So once you've
+worked through Step 1, its issue is closed — and from then on, Step 0 will
+skip issue creation forever. The workflow run goes **green** ✅ with a log
+line saying the issue already exists, no new issue appears, and nothing
+tells you you're stuck.
+
+If you re-ran Step 0 and no issue showed up, this is why. Closing or
+reopening issues won't help — the old issues must be **deleted** (see
+below), because `--state all` matches them in any state.
+
+The same applies to the per-step check workflows: they're deliberately
+disabled until the previous step passes. A reset has to re-enable Step 0
+*and* disable the step checkers, or the sequence starts out of order.
+
+### The scripted way (recommended)
+
+```bash
+./scripts/reset_course.sh --dry-run   # preview — changes nothing
+./scripts/reset_course.sh             # do it, after confirming
+```
+
+It prints exactly what it will touch, then requires you to type `reset`
+(nothing else proceeds). It refuses to run at all without an interactive
+terminal, so it can't be triggered accidentally from CI or a pipe.
+
+What it does, in order:
+
+1. Deletes every issue labelled `course` **or** `step-1` — **open and
+   closed**, which is what unsticks the guard above. (Both labels, because
+   the guard keys on `step-1`; a stray `step-1` issue without `course`
+   would keep blocking the restart.)
+2. Re-enables `Step 0 - Start Course`.
+3. Disables all the `Step N - ...` check workflows.
+4. Leaves `exercises/practice*.py` **alone** unless you pass
+   `--delete-exercises`.
+5. Dispatches Step 0, which opens a fresh Step 1 issue.
+
+It never touches your git history, commits, `solutions/`, `.env`, or
+`exercises/README.md`. Requires the `gh` CLI, authenticated
+(`gh auth login`) — it runs on your machine, not in CI.
+
+> Deleting issues needs admin rights on the repo. If `gh` reports a
+> permissions error on step 1, you're likely not an owner/admin.
+
+### The manual way
+
+If you'd rather not run the script, or want to understand what it does:
+
+1. **Delete the course issues** (not just close them) — Issues tab, or:
+
+   ```bash
+   gh issue list --state all --search 'label:course,step-1' --json number \
+     --jq '.[].number' | xargs -I{} gh issue delete {} --yes
+   ```
+
+   The `label:course,step-1` search means "either label" — `step-1` is the
+   one Step 0's guard actually checks.
+
+2. **Re-enable Step 0** — Actions → "Step 0 - Start Course" → `···` →
+   Enable workflow. Or `gh workflow enable "Step 0 - Start Course"`.
+
+3. **Disable the step checkers** so steps can't run out of order:
+
+   ```bash
+   gh workflow list --all --json name --jq '.[].name' \
+     | grep -E '^Step [1-9]' \
+     | xargs -I{} gh workflow disable "{}"
+   ```
+
+4. **Decide about `exercises/`.** Deleting the learner's `practice*.py`
+   files is optional:
+
+   - **Keep them** to re-run the graders against existing work. Note that
+     pushing a change to a practice file re-triggers its checker, so a
+     completed exercise may pass again immediately.
+   - **Delete them** for a genuinely blank start. They're recreated by the
+     learner, not by the workflows. Deleting locally isn't enough — commit
+     and push, or GitHub still has them.
+
+5. **Manually dispatch Step 0** — Actions → "Step 0 - Start Course" → "Run
+   workflow" → Run. Or `gh workflow run "Step 0 - Start Course"`.
+
+   Do this **after** step 1, otherwise the guard skips issue creation again
+   and you're back where you started.
+
+### Verifying the reset worked
+
+- A new **Step 1** issue is open, and it's the *only* `course` issue
+  (`gh issue list --state all --search 'label:course,step-1'` shows one row).
+- Actions shows `Step 0 - Start Course` **enabled**, every `Step N` checker
+  **disabled**.
+- Pushing `exercises/practice1_hello.py` triggers "Step 1" and nothing else.
+
+---
+
+## 7. Extending to more sections
+
+This scaffold wires up Sections 1-2 of the 22-section reference material
 (3 exercises total) as a working proof of concept. To add Section 3
 onward, for each new step:
 

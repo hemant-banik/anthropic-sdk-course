@@ -1,7 +1,8 @@
 ## Welcome to the Anthropic Python SDK course! 👋
 
-This is an automated, self-paced course. You'll get one issue per step. Each
-issue has:
+This is an automated, self-paced course of **22 steps**, grouped into 5
+phases and finishing with a capstone where you build a small application of
+your own. You'll get one issue per step. Each issue has:
 
 - A short **theory** section explaining an SDK concept.
 - A concrete **exercise** telling you exactly what file to create and what
@@ -13,7 +14,7 @@ automatically. If it's correct, this issue will get a ✅ comment, close
 itself, and the next step's issue will open — all automatically, usually
 within a few seconds.
 
-Ready? Your first real lesson is coming up next as **Step 1**.
+Ready? Your first real lesson is coming up next as **Step 1 of 22**.
 
 <details>
 <summary>Having trouble getting started?</summary>

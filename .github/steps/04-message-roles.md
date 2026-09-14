@@ -1,5 +1,11 @@
 ## 📘 Step 4 — Message roles & multi-turn conversations
 
+<!-- pedagogy-header:begin -->
+**Phase 1: Foundations** · Step 4 of 22 · ~20 min · ~$0.006 in API calls
+
+> **Why this matters:** The API is stateless — appending to the `messages` list yourself is the entire secret behind every chatbot that appears to remember what you said.
+<!-- pedagogy-header:end -->
+
 ### 🎯 What you'll learn
 
 - What **stateless** means, and why Claude has no memory of your last call
@@ -365,5 +371,18 @@ to be spelled the same, which reads oddly but is perfectly normal Python.
   your script — make sure all three are present.
 - If the check fails complaining about `ICA_API_KEY`, make sure it's set as
   a repo secret (Settings → Secrets and variables → Actions).
+
+</details>
+
+<details>
+<summary>Stuck? Reveal the solution</summary>
+
+Give it a real attempt first — debugging your own code is where the learning
+happens. If you're properly stuck, the complete working reference is here:
+
+**[`solutions/practice4_multiturn.py`](../../solutions/practice4_multiturn.py)**
+
+Copy it to `exercises/practice4_multiturn.py`, run it, then read it line by line and make
+sure you can explain *why* each part is there.
 
 </details>

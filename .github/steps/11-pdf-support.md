@@ -1,5 +1,11 @@
 ## 📘 Step 11 — PDF support
 
+<!-- pedagogy-header:begin -->
+**Phase 2: Input & output types** · Step 11 of 22 · ~20 min · ~$0.005 in API calls
+
+> **Why this matters:** Contracts, invoices, and research papers all arrive as PDFs — document input replaces the entire fragile OCR-and-regex pipeline teams used to maintain.
+<!-- pedagogy-header:end -->
+
 ### 🎯 What you'll learn
 
 - How to hand Claude a whole PDF using a **`document` content block**
@@ -379,5 +385,18 @@ stay locked and later writes fail. Use `with`; it costs nothing.
   spacing.
 - If the check fails complaining about `ICA_API_KEY`, make sure it's set as
   a repo secret (Settings → Secrets and variables → Actions).
+
+</details>
+
+<details>
+<summary>Stuck? Reveal the solution</summary>
+
+Give it a real attempt first — debugging your own code is where the learning
+happens. If you're properly stuck, the complete working reference is here:
+
+**[`solutions/practice11_pdf.py`](../../solutions/practice11_pdf.py)**
+
+Copy it to `exercises/practice11_pdf.py`, run it, then read it line by line and make
+sure you can explain *why* each part is there.
 
 </details>

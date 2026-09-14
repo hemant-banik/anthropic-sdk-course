@@ -6,64 +6,79 @@ project's gateway) and checks stdout has both expected labeled answer
 lines, confirming asyncio.gather concurrency worked and both async calls
 completed successfully.
 """
-import os
-import subprocess
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _report import (  # noqa: E402
+    CLIENT_SETUP_CHECKS,
+    check_source,
+    require_api_key,
+    require_exercise,
+    require_labels,
+    run_exercise,
+)
 
 EXERCISE_PATH = Path("exercises/practice15_async_client.py")
 
 REQUIRED_LABELS = ["answer_1:", "answer_2:"]
 
+LABEL_HINTS = {
+    "answer_1:": (
+        "Unpack the gather() results and print the first one with the exact "
+        'snake_case label, e.g. print("answer_1:", r1.content[0].text).'
+    ),
+    "answer_2:": (
+        'Print the second gathered result too: '
+        'print("answer_2:", r2.content[0].text) — note the underscore in "answer_2:".'
+    ),
+}
 
-def fail(msg: str) -> None:
-    print(f"❌ FAIL: {msg}")
-    sys.exit(1)
+SOURCE_CHECKS = CLIENT_SETUP_CHECKS + [
+    (
+        "AsyncAnthropic",
+        "Your script doesn't use AsyncAnthropic — that's the whole point of this step!",
+        "Instantiate the async client: client = AsyncAnthropic(api_key=..., "
+        "base_url=...). The sync Anthropic class cannot be awaited.",
+    ),
+    (
+        # Both async markers were required together in the original grader.
+        lambda src: "async def" in src and "await " in src,
+        "Your script doesn't use async/await — you need an async def main() with awaited calls.",
+        "Define 'async def main():' and await each request: "
+        "response = await client.messages.create(...).",
+    ),
+    (
+        "asyncio.run",
+        "Your script doesn't call asyncio.run(main()) to actually run the coroutine.",
+        "Calling main() alone just builds a coroutine and warns 'never awaited' — "
+        "start the event loop with asyncio.run(main()).",
+    ),
+    (
+        "asyncio.gather",
+        "Your script doesn't use asyncio.gather() — you need to run both requests concurrently.",
+        "Awaiting the two calls on separate lines runs them one after another. Use "
+        "r1, r2 = await asyncio.gather(coro1, coro2) to overlap them.",
+    ),
+]
 
 
 def main() -> None:
-    if not os.environ.get("ICA_API_KEY"):
-        fail(
-            "ICA_API_KEY is not set. Add it as a repo secret: "
-            "Settings -> Secrets and variables -> Actions -> New repository secret."
-        )
+    require_api_key()
+    source = require_exercise(EXERCISE_PATH)
+    check_source(source, SOURCE_CHECKS)
 
-    if not EXERCISE_PATH.exists():
-        fail(f"{EXERCISE_PATH} does not exist. Create it as instructed in the issue.")
-
-    source = EXERCISE_PATH.read_text()
-    if "load_dotenv()" not in source:
-        fail("Your script doesn't call load_dotenv() — this project loads the key from a .env file.")
-    if "ICA_API_KEY" not in source:
-        fail("Your script doesn't reference ICA_API_KEY — that's the key name this project uses.")
-    if "base_url=" not in source:
-        fail("Your script doesn't set base_url= — this project routes requests through a custom gateway.")
-    if "AsyncAnthropic" not in source:
-        fail("Your script doesn't use AsyncAnthropic — that's the whole point of this step!")
-    if "async def" not in source or "await " not in source:
-        fail("Your script doesn't use async/await — you need an async def main() with awaited calls.")
-    if "asyncio.run" not in source:
-        fail("Your script doesn't call asyncio.run(main()) to actually run the coroutine.")
-    if "asyncio.gather" not in source:
-        fail("Your script doesn't use asyncio.gather() — you need to run both requests concurrently.")
-
-    result = subprocess.run(
-        [sys.executable, str(EXERCISE_PATH)],
-        capture_output=True,
-        text=True,
+    stdout = run_exercise(
+        EXERCISE_PATH,
         timeout=60,
+        error_hint=(
+            "Check the last line of the stderr traceback. 'coroutine was never awaited' "
+            "means a missing await; 'object Message can't be used in await expression' "
+            "means you awaited the sync client."
+        ),
     )
-    if result.returncode != 0:
-        fail(
-            "Your script raised an error when run:\n"
-            f"--- stdout ---\n{result.stdout}\n"
-            f"--- stderr ---\n{result.stderr}"
-        )
 
-    stdout = result.stdout
-    for label in REQUIRED_LABELS:
-        if label not in stdout:
-            fail(f"Expected a line starting with '{label}' in stdout. Got:\n{stdout}")
+    require_labels(stdout, REQUIRED_LABELS, LABEL_HINTS)
 
     print("✅ PASS: async client fired concurrent requests correctly.")
     print(stdout)

@@ -1,5 +1,11 @@
 ## 📘 Step 15 — Async Client: `AsyncAnthropic`
 
+<!-- pedagogy-header:begin -->
+**Phase 4: Production concerns** · Step 15 of 22 · ~20 min · ~$0.002 in API calls
+
+> **Why this matters:** Any web backend serving more than one user at a time needs `AsyncAnthropic` — otherwise every request blocks a worker for the full length of a Claude call.
+<!-- pedagogy-header:end -->
+
 ### 🎯 What you'll learn
 
 - What "async" actually means, in plain English (and why it makes your app faster)
@@ -351,5 +357,18 @@ asyncio.run(main())                        # 22
 - `ModuleNotFoundError: No module named 'dotenv'` — install dependencies:
   `pip install anthropic python-dotenv`. (`asyncio` needs no install; it ships
   with Python.)
+
+</details>
+
+<details>
+<summary>Stuck? Reveal the solution</summary>
+
+Give it a real attempt first — debugging your own code is where the learning
+happens. If you're properly stuck, the complete working reference is here:
+
+**[`solutions/practice15_async_client.py`](../../solutions/practice15_async_client.py)**
+
+Copy it to `exercises/practice15_async_client.py`, run it, then read it line by line and make
+sure you can explain *why* each part is there.
 
 </details>

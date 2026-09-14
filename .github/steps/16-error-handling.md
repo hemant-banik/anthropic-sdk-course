@@ -1,5 +1,11 @@
 ## 📘 Step 16 — Error Handling: `APIError`, `RateLimitError`, `APIStatusError`
 
+<!-- pedagogy-header:begin -->
+**Phase 4: Production concerns** · Step 16 of 22 · ~20 min · $0 in API calls
+
+> **Why this matters:** Rate limits and overload errors are not edge cases at scale, they are Tuesday — catching the typed exception instead of crashing is what separates a demo from a service.
+<!-- pedagogy-header:end -->
+
 ### 🎯 What you'll learn
 
 - What an **exception** is and what `try` / `except` actually do
@@ -343,5 +349,18 @@ That's the whole point: a handled error is not a crash.
 - The checker also requires the word `except` and the string `anthropic.` to
   appear in your source, so keep the fully-qualified exception name rather than
   importing the class bare.
+
+</details>
+
+<details>
+<summary>Stuck? Reveal the solution</summary>
+
+Give it a real attempt first — debugging your own code is where the learning
+happens. If you're properly stuck, the complete working reference is here:
+
+**[`solutions/practice16_error_handling.py`](../../solutions/practice16_error_handling.py)**
+
+Copy it to `exercises/practice16_error_handling.py`, run it, then read it line by line and make
+sure you can explain *why* each part is there.
 
 </details>

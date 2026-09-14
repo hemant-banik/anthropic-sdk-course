@@ -5,59 +5,69 @@ Runs exercises/practice_message.py for real (this step DOES call the live
 Anthropic API through this project's gateway, so ICA_API_KEY must be set)
 and checks the reply contains "4" (the answer to "What is 2 + 2?").
 """
-import os
-import subprocess
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _report import (
+    CLIENT_SETUP_CHECKS,
+    check_source,
+    contains,
+    fail,
+    require_api_key,
+    require_exercise,
+    run_exercise,
+)
+
 EXERCISE_PATH = Path("exercises/practice_message.py")
 
-
-def fail(msg: str) -> None:
-    print(f"❌ FAIL: {msg}")
-    sys.exit(1)
+CREATE_PARAM_HINTS = {
+    "model=": 'Pass the model explicitly, e.g. model="claude-sonnet-4-5-20250929".',
+    "max_tokens=": "max_tokens= is required by the Messages API — add e.g. max_tokens=1024.",
+    "messages=": 'Pass messages=[{"role": "user", "content": "What is 2 + 2?"}].',
+}
 
 
 def main() -> None:
-    if not os.environ.get("ICA_API_KEY"):
-        fail(
-            "ICA_API_KEY is not set. Add it as a repo secret: "
-            "Settings -> Secrets and variables -> Actions -> New repository secret."
-        )
+    require_api_key()
+    source = require_exercise(EXERCISE_PATH)
 
-    if not EXERCISE_PATH.exists():
-        fail(f"{EXERCISE_PATH} does not exist. Create it as instructed in the issue.")
-
-    source = EXERCISE_PATH.read_text()
     for required in ("model=", "max_tokens=", "messages="):
         if required not in source:
-            fail(f"Your call to messages.create() is missing the '{required}' parameter.")
+            fail(
+                f"Your call to messages.create() is missing the '{required}' parameter.",
+                expected=f"{EXERCISE_PATH} source to contain '{required}'",
+                actual_title="YOUR SCRIPT (source as the grader sees it)",
+                actual=source,
+                hint=CREATE_PARAM_HINTS[required],
+            )
 
-    if "load_dotenv()" not in source:
-        fail("Your script doesn't call load_dotenv() — this project loads the key from a .env file.")
-    if "ICA_API_KEY" not in source:
-        fail("Your script doesn't reference ICA_API_KEY — that's the key name this project uses.")
-    if "base_url=" not in source:
-        fail("Your script doesn't set base_url= — this project routes requests through a custom gateway.")
+    check_source(source, CLIENT_SETUP_CHECKS)
 
-    result = subprocess.run(
-        [sys.executable, str(EXERCISE_PATH)],
-        capture_output=True,
-        text=True,
+    stdout = run_exercise(
+        EXERCISE_PATH,
         timeout=60,
+        error_hint=(
+            "Check the last line of the stderr traceback. A 401 means ICA_API_KEY is "
+            "wrong or unset; a 404 usually means base_url is wrong; a TypeError means "
+            "a create() keyword is misspelled."
+        ),
     )
-    if result.returncode != 0:
+
+    if not contains(stdout, "4"):
         fail(
-            "Your script raised an error when run:\n"
-            f"--- stdout ---\n{result.stdout}\n"
-            f"--- stderr ---\n{result.stderr}"
+            f"Expected the reply to mention '4'. Got stdout:",
+            expected="stdout to contain the character '4' (Claude's answer to 2 + 2)",
+            actual=stdout,
+            hint=(
+                "Print the reply text, not the response object: "
+                "print(response.content[0].text). If stdout is empty you probably "
+                "assigned the result without printing it."
+            ),
         )
 
-    if "4" not in result.stdout:
-        fail(f"Expected the reply to mention '4'. Got stdout:\n{result.stdout}")
-
     print("✅ PASS: messages.create() call succeeded and returned the right answer.")
-    print(result.stdout)
+    print(stdout)
 
 
 if __name__ == "__main__":

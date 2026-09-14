@@ -1,5 +1,11 @@
 ## 📘 Step 10 — Vision: multiple images in one request
 
+<!-- pedagogy-header:begin -->
+**Phase 2: Input & output types** · Step 10 of 22 · ~15 min · ~$0.005 in API calls
+
+> **Why this matters:** Before-and-after photos, a chart next to its source table, two versions of a design — real comparison tasks need several images in one request, not several requests.
+<!-- pedagogy-header:end -->
+
 ### 🎯 What you'll learn
 
 - How to put **more than one image** in a single message so Claude can compare them
@@ -362,5 +368,18 @@ must be a string.
   somewhere in the output. Don't rename the printed label.
 - If the check fails complaining about `ICA_API_KEY`, make sure it's set as
   a repo secret (Settings → Secrets and variables → Actions).
+
+</details>
+
+<details>
+<summary>Stuck? Reveal the solution</summary>
+
+Give it a real attempt first — debugging your own code is where the learning
+happens. If you're properly stuck, the complete working reference is here:
+
+**[`solutions/practice10_vision.py`](../../solutions/practice10_vision.py)**
+
+Copy it to `exercises/practice10_vision.py`, run it, then read it line by line and make
+sure you can explain *why* each part is there.
 
 </details>

@@ -5,59 +5,77 @@ Runs exercises/practice5_image.py (live API call through this project's
 gateway) and checks stdout shows the expected "color:" label with Claude
 correctly identifying the solid-red test image.
 """
-import os
-import subprocess
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _report import (
+    CLIENT_SETUP_CHECKS,
+    check_source,
+    contains,
+    fail,
+    require_api_key,
+    require_exercise,
+    require_in_stdout,
+    run_exercise,
+)
+
 EXERCISE_PATH = Path("exercises/practice5_image.py")
 
-
-def fail(msg: str) -> None:
-    print(f"❌ FAIL: {msg}")
-    sys.exit(1)
+SOURCE_CHECKS = CLIENT_SETUP_CHECKS + [
+    (
+        '"type": "image"',
+        "Your script doesn't include an image content block ('type': 'image').",
+        'Content must be a list of blocks, one of them {"type": "image", "source": '
+        '{"type": "base64", "media_type": "image/png", "data": b64}} — the grader '
+        'looks for the exact text \'"type": "image"\' (double quotes, one space).',
+    ),
+    (
+        "base64",
+        "Your script doesn't appear to base64-encode the image data.",
+        "Import base64 and encode the bytes: "
+        'base64.standard_b64encode(img_bytes).decode("utf-8") — the API needs a '
+        "string, not raw bytes.",
+    ),
+]
 
 
 def main() -> None:
-    if not os.environ.get("ICA_API_KEY"):
-        fail(
-            "ICA_API_KEY is not set. Add it as a repo secret: "
-            "Settings -> Secrets and variables -> Actions -> New repository secret."
-        )
+    require_api_key()
+    source = require_exercise(EXERCISE_PATH)
+    check_source(source, SOURCE_CHECKS)
 
-    if not EXERCISE_PATH.exists():
-        fail(f"{EXERCISE_PATH} does not exist. Create it as instructed in the issue.")
-
-    source = EXERCISE_PATH.read_text()
-    if "load_dotenv()" not in source:
-        fail("Your script doesn't call load_dotenv() — this project loads the key from a .env file.")
-    if "ICA_API_KEY" not in source:
-        fail("Your script doesn't reference ICA_API_KEY — that's the key name this project uses.")
-    if "base_url=" not in source:
-        fail("Your script doesn't set base_url= — this project routes requests through a custom gateway.")
-    if '"type": "image"' not in source:
-        fail("Your script doesn't include an image content block ('type': 'image').")
-    if "base64" not in source:
-        fail("Your script doesn't appear to base64-encode the image data.")
-
-    result = subprocess.run(
-        [sys.executable, str(EXERCISE_PATH)],
-        capture_output=True,
-        text=True,
+    stdout = run_exercise(
+        EXERCISE_PATH,
         timeout=60,
+        error_hint=(
+            "Check the last line of the stderr traceback. A 400 'could not process "
+            "image' means the base64 string or media_type is wrong; FileNotFoundError "
+            "means the image path doesn't resolve from the repo root."
+        ),
     )
-    if result.returncode != 0:
-        fail(
-            "Your script raised an error when run:\n"
-            f"--- stdout ---\n{result.stdout}\n"
-            f"--- stderr ---\n{result.stderr}"
-        )
 
-    stdout = result.stdout
-    if "color:" not in stdout:
-        fail(f"Expected a line starting with 'color:' in stdout. Got:\n{stdout}")
-    if "red" not in stdout.lower():
-        fail(f"Expected the reply to mention 'red'. Got stdout:\n{stdout}")
+    require_in_stdout(
+        stdout,
+        "color:",
+        "Expected a line starting with 'color:' in stdout.",
+        expected="stdout to contain the literal text 'color:'",
+        hint=(
+            'Print the answer with the exact lowercase label, e.g. '
+            'print("color:", response.content[0].text).'
+        ),
+    )
+    if not contains(stdout, "red"):
+        fail(
+            "Expected the reply to mention 'red'. Got stdout:",
+            expected="stdout to contain 'red' (case-insensitive)",
+            actual=stdout,
+            hint=(
+                "The test image is solid red, so Claude should say 'red'. If it "
+                "describes something else the image bytes probably never reached the "
+                "API — verify you sent the base64 of the actual PNG file."
+            ),
+        )
 
     print("✅ PASS: Claude correctly identified the base64-encoded image.")
     print(stdout)

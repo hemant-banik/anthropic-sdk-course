@@ -1,5 +1,11 @@
 ## 📘 Step 7 — Structured / JSON output
 
+<!-- pedagogy-header:begin -->
+**Phase 2: Input & output types** · Step 7 of 22 · ~20 min · ~$0.003 in API calls
+
+> **Why this matters:** Prose is for humans, JSON is for the rest of your stack — this is the step that turns Claude from a chat toy into a component you can pipe into a database.
+<!-- pedagogy-header:end -->
+
 ### 🎯 What you'll learn
 
 - Why there's no "JSON mode" — and how prompting + parsing replaces it
@@ -362,5 +368,18 @@ prompt spells out the types.
   your script — make sure all three are present.
 - If the check fails complaining about `ICA_API_KEY`, make sure it's set as
   a repo secret (Settings → Secrets and variables → Actions).
+
+</details>
+
+<details>
+<summary>Stuck? Reveal the solution</summary>
+
+Give it a real attempt first — debugging your own code is where the learning
+happens. If you're properly stuck, the complete working reference is here:
+
+**[`solutions/practice7_json.py`](../../solutions/practice7_json.py)**
+
+Copy it to `exercises/practice7_json.py`, run it, then read it line by line and make
+sure you can explain *why* each part is there.
 
 </details>

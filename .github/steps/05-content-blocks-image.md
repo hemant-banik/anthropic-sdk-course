@@ -1,5 +1,11 @@
 ## 📘 Step 5 — Content blocks: text + image input (base64)
 
+<!-- pedagogy-header:begin -->
+**Phase 2: Input & output types** · Step 5 of 22 · ~15 min · ~$0.003 in API calls
+
+> **Why this matters:** Receipts, screenshots, whiteboard photos — the moment a product accepts an image upload, it needs exactly this base64 content-block pattern.
+<!-- pedagogy-header:end -->
+
 ### 🎯 What you'll learn
 
 - The two shapes `content` can take: a plain string vs. a **list of blocks**
@@ -345,5 +351,18 @@ deterministically.
   your script — make sure all three are present.
 - If the check fails complaining about `ICA_API_KEY`, make sure it's set as
   a repo secret (Settings → Secrets and variables → Actions).
+
+</details>
+
+<details>
+<summary>Stuck? Reveal the solution</summary>
+
+Give it a real attempt first — debugging your own code is where the learning
+happens. If you're properly stuck, the complete working reference is here:
+
+**[`solutions/practice5_image.py`](../../solutions/practice5_image.py)**
+
+Copy it to `exercises/practice5_image.py`, run it, then read it line by line and make
+sure you can explain *why* each part is there.
 
 </details>

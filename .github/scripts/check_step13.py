@@ -7,71 +7,92 @@ the long message counted more tokens than the short one, and that the
 client setup still uses this project's real pattern (load_dotenv +
 ICA_API_KEY + base_url).
 """
-import os
-import re
-import subprocess
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _report import (
+    CLIENT_SETUP_CHECKS,
+    check_source,
+    fail,
+    require_api_key,
+    require_exercise,
+    require_labels,
+    run_exercise,
+    search_value,
+)
 
 EXERCISE_PATH = Path("exercises/practice13_token_counting.py")
 
 REQUIRED_LABELS = ["short_tokens:", "long_tokens:"]
 
+LABEL_HINTS = {
+    "short_tokens:": (
+        "Count the short message and print it with the exact snake_case label, e.g. "
+        'print("short_tokens:", client.messages.count_tokens(...).input_tokens).'
+    ),
+    "long_tokens:": (
+        "Do the same for the long message: "
+        'print("long_tokens:", client.messages.count_tokens(...).input_tokens).'
+    ),
+}
 
-def fail(msg: str) -> None:
-    print(f"❌ FAIL: {msg}")
-    sys.exit(1)
+SOURCE_CHECKS = CLIENT_SETUP_CHECKS + [
+    (
+        "count_tokens",
+        "Your script doesn't call count_tokens() — that's the whole point of this step!",
+        "Use client.messages.count_tokens(model=..., messages=[...]) and read "
+        ".input_tokens off the result — don't estimate by len(text.split()).",
+    ),
+]
 
 
 def main() -> None:
-    if not os.environ.get("ICA_API_KEY"):
-        fail(
-            "ICA_API_KEY is not set. Add it as a repo secret: "
-            "Settings -> Secrets and variables -> Actions -> New repository secret."
-        )
+    require_api_key()
+    source = require_exercise(EXERCISE_PATH)
+    check_source(source, SOURCE_CHECKS)
 
-    if not EXERCISE_PATH.exists():
-        fail(f"{EXERCISE_PATH} does not exist. Create it as instructed in the issue.")
-
-    source = EXERCISE_PATH.read_text()
-    if "load_dotenv()" not in source:
-        fail("Your script doesn't call load_dotenv() — this project loads the key from a .env file.")
-    if "ICA_API_KEY" not in source:
-        fail("Your script doesn't reference ICA_API_KEY — that's the key name this project uses.")
-    if "base_url=" not in source:
-        fail("Your script doesn't set base_url= — this project routes requests through a custom gateway.")
-    if "count_tokens" not in source:
-        fail("Your script doesn't call count_tokens() — that's the whole point of this step!")
-
-    result = subprocess.run(
-        [sys.executable, str(EXERCISE_PATH)],
-        capture_output=True,
-        text=True,
+    stdout = run_exercise(
+        EXERCISE_PATH,
         timeout=60,
+        error_hint=(
+            "Check the last line of the stderr traceback. count_tokens() needs both "
+            "model= and messages=; it returns an object, so read .input_tokens rather "
+            "than printing it directly."
+        ),
     )
-    if result.returncode != 0:
-        fail(
-            "Your script raised an error when run:\n"
-            f"--- stdout ---\n{result.stdout}\n"
-            f"--- stderr ---\n{result.stderr}"
-        )
 
-    stdout = result.stdout
-    for label in REQUIRED_LABELS:
-        if label not in stdout:
-            fail(f"Expected a line starting with '{label}' in stdout. Got:\n{stdout}")
+    require_labels(stdout, REQUIRED_LABELS, LABEL_HINTS)
 
-    short_match = re.search(r"short_tokens:\s*(\d+)", stdout)
-    long_match = re.search(r"long_tokens:\s*(\d+)", stdout)
+    short_match = search_value(stdout, "short_tokens:")
+    long_match = search_value(stdout, "long_tokens:")
     if not short_match or not long_match:
-        fail(f"Couldn't parse integer token counts out of stdout:\n{stdout}")
+        fail(
+            "Couldn't parse integer token counts out of stdout:",
+            expected=(
+                "lines matching  short_tokens:\\s*(\\d+)  and  long_tokens:\\s*(\\d+)"
+            ),
+            actual=stdout,
+            hint=(
+                "Print the bare integer after the label — printing the whole "
+                "MessageTokensCount object gives 'input_tokens=12' style text that the "
+                "grader can't parse. Use .input_tokens."
+            ),
+        )
 
     short_tokens = int(short_match.group(1))
     long_tokens = int(long_match.group(1))
     if long_tokens <= short_tokens:
         fail(
             f"Expected long_tokens ({long_tokens}) to be greater than "
-            f"short_tokens ({short_tokens}) — the long message should count more tokens."
+            f"short_tokens ({short_tokens}) — the long message should count more tokens.",
+            expected=f"long_tokens > short_tokens (got {long_tokens} <= {short_tokens})",
+            actual=stdout,
+            hint=(
+                "The two labels look swapped, or both counted the same message. Pass "
+                "the short text to the first count_tokens() call and the long text to "
+                "the second."
+            ),
         )
 
     print("✅ PASS: token counting works correctly.")

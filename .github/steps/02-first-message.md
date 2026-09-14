@@ -1,5 +1,11 @@
 ## 📘 Step 2 — Your first `messages.create()` call
 
+<!-- pedagogy-header:begin -->
+**Phase 1: Foundations** · Step 2 of 22 · ~15 min · ~$0.002 in API calls
+
+> **Why this matters:** `model`, `max_tokens`, `messages` is the shape of literally every Claude request in production — learn it once and every other feature is just extra keyword arguments.
+<!-- pedagogy-header:end -->
+
 ### 🎯 What you'll learn
 
 - What `messages.create()` is and why *every* Claude feature goes through it
@@ -316,5 +322,18 @@ Python. Keep the comments — they explain *why* the loop exists.
 - The grading check literally re-runs your script and reads what it prints
   to confirm a real reply came back — it's not just checking the file
   exists.
+
+</details>
+
+<details>
+<summary>Stuck? Reveal the solution</summary>
+
+Give it a real attempt first — debugging your own code is where the learning
+happens. If you're properly stuck, the complete working reference is here:
+
+**[`solutions/practice_message.py`](../../solutions/practice_message.py)**
+
+Copy it to `exercises/practice_message.py`, run it, then read it line by line and make
+sure you can explain *why* each part is there.
 
 </details>
